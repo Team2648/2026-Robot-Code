@@ -22,11 +22,12 @@ public class Robot extends LoggedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  @SuppressWarnings("resource")
   public Robot() {
     Logger.recordMetadata("ProjectName", "2026_Robot_Code");
 
     if(isReal()) {
-      if(CompetitionConstants.logToNetworkTables) {
+      if(CompetitionConstants.kLogToNetworkTables) {
         Logger.addDataReceiver(new NT4Publisher());
       }
       
@@ -41,7 +42,7 @@ public class Robot extends LoggedRobot {
     }
 
     Logger.start();
-    
+
     m_robotContainer = new RobotContainer();
   }
 

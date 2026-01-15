@@ -17,10 +17,9 @@ public interface IAprilTagProvider {
      * A method to get the distance from <i>the camera</i> to the AprilTag specified
      * 
      * @param id The ID of the AprilTag to give a distance to
-     * @param targetHeightMeters The height of the AprilTag off the ground, in meters
      * @return The distance, in meters, to the target, or OptionalDouble.empty() if the tag is not present in the camera's view
      */
-    public OptionalDouble getTagDistanceFromCameraByID(int id, double targetHeightMeters);
+    public OptionalDouble getTagDistanceFromCameraByID(int id);
 
     /**
      * A method to get the pitch from the center of the image of a particular AprilTag

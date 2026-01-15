@@ -13,10 +13,9 @@ import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.constants.CompetitionConstants;
 import frc.robot.interfaces.IAprilTagProvider;
 import frc.robot.interfaces.IVisualPoseProvider;
 
@@ -35,9 +34,7 @@ public class PhotonVision implements IAprilTagProvider,IVisualPoseProvider {
         camera = new PhotonCamera(cameraName);
 
         photonPoseEstimator = new PhotonPoseEstimator(
-            AprilTagFieldLayout.loadFromResource(
-                AprilTagFields.kDefaultField.m_resourceFile
-            ), 
+            CompetitionConstants.kTagLayout, 
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
             robotToCam
         );
@@ -78,7 +75,7 @@ public class PhotonVision implements IAprilTagProvider,IVisualPoseProvider {
     }
 
     @Override
-    public OptionalDouble getTagDistanceFromCameraByID(int id, double targetHeightMeters) {
+    public OptionalDouble getTagDistanceFromCameraByID(int id) {
         if (latestResult == null) {
             return OptionalDouble.empty();
         }
@@ -88,7 +85,7 @@ public class PhotonVision implements IAprilTagProvider,IVisualPoseProvider {
         }
 
         Optional<PhotonTrackedTarget> desiredTarget = getTargetFromList(latestResult.getTargets(), id);
-
+        
         if (desiredTarget.isEmpty()) {
             return OptionalDouble.empty();
         }
@@ -96,7 +93,7 @@ public class PhotonVision implements IAprilTagProvider,IVisualPoseProvider {
         return OptionalDouble.of(
             PhotonUtils.calculateDistanceToTargetMeters(
                 cameraHeightMeters, 
-                targetHeightMeters, 
+                CompetitionConstants.kTagLayout.getTagPose(id).get().getZ(),
                 cameraPitchRadians, 
                 Units.degreesToRadians(desiredTarget.get().getPitch()))
         );
