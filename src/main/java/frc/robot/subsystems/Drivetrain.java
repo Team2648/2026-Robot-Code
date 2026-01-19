@@ -1,14 +1,19 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,10 +21,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.OIConstants;
+import frc.robot.utilities.PhotonVision;
 import frc.robot.utilities.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
@@ -31,6 +41,9 @@ public class Drivetrain extends SubsystemBase {
     private AHRS gyro;
 
     private SwerveDrivePoseEstimator estimator;
+
+    private PhotonVision camera1;
+    private PhotonVision camera2;
 
     public Drivetrain() {
         frontLeft = new SwerveModule(
@@ -79,6 +92,25 @@ public class Drivetrain extends SubsystemBase {
             },
             new Pose2d()
         );
+
+        if(AutoConstants.kAutoConfigOk) {
+            AutoBuilder.configure(
+                this::getPose, 
+                this::resetOdometry, 
+                this::getCurrentChassisSpeeds, 
+                (speeds, feedforwards) -> driveWithChassisSpeeds(speeds), 
+                AutoConstants.kPPDriveController, 
+                AutoConstants.kRobotConfig,
+                () -> {
+                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                        if (alliance.isPresent()) {
+                            return alliance.get() == DriverStation.Alliance.Red;
+                        }
+                        return false;
+                }, 
+                this
+            );
+        }
     }
 
     @Override
@@ -100,6 +132,42 @@ public class Drivetrain extends SubsystemBase {
 
         Logger.recordOutput("Drivetrain/Pose", getPose());
         Logger.recordOutput("Drivetrain/Heading", getHeading());
+    }
+
+    // TODO check both cameras
+    public Command driveAprilTagLock(DoubleSupplier xSpeed, DoubleSupplier ySpeed, double deadband, int tagID) {
+        if (camera1 == null) {
+            return new PrintCommand("Camera 1 not available");
+        }
+
+        // TODO The process variable is different here than what these constants are used for, may need to use something different
+        PIDController controller = new PIDController(
+            AutoConstants.kPThetaController, 
+            0, 
+            0
+        );
+
+        return runOnce(controller::reset).andThen(
+            drive(
+                xSpeed, 
+                ySpeed, 
+                () -> {
+                    OptionalDouble tagYaw = camera1.getTagYawByID(tagID);
+
+                    return (tagYaw.isEmpty() ? 0 : controller.calculate(tagYaw.getAsDouble(), 0));
+                },
+                () -> false
+           )
+        );
+    }
+
+    public Command drivePathPlannerPath(PathPlannerPath path) {
+        if(AutoConstants.kAutoConfigOk) {
+            return AutoBuilder.followPath(path);
+        } else {
+            return new PrintCommand("Robot Config loading failed, on the fly PathPlanner disabled");
+        }
+        
     }
 
     public Command drive(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rotation, BooleanSupplier fieldRelative) {
@@ -128,6 +196,19 @@ public class Drivetrain extends SubsystemBase {
         frontRight.resetEncoders();
         rearLeft.resetEncoders();
         rearRight.resetEncoders();
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        estimator.resetPosition(
+            Rotation2d.fromDegrees(getGyroValue()),
+            new SwerveModulePosition[] {
+                frontLeft.getPosition(),
+                frontRight.getPosition(),
+                rearLeft.getPosition(),
+                rearRight.getPosition()
+            },
+            pose
+        );
     }
 
     public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {

@@ -1,0 +1,17 @@
+package frc.robot.constants;
+
+import edu.wpi.first.math.geometry.Transform3d;
+
+public class PhotonConstants {
+    public static final String kCamera1Name = "pv1";
+    public static final String kCamera2Name = "pv2";
+
+    // TODO Need actual values for all of this
+    public static final Transform3d kCamera1RobotToCam = new Transform3d();
+    public static final Transform3d kCamera2RobotToCam = new Transform3d();
+
+    public static final double kCamera1HeightMeters = 0;
+    public static final double kCamera1PitchRadians = 0;
+    public static final double kCamera2HeightMeters = 0;
+    public static final double kCamera2PitchRadians = 0;
+}
