@@ -43,14 +43,43 @@ public class SwerveModule {
 
     private String moduleName;
 
+    private boolean isAbsoluteEncoderDisabled;
+
+    /**
+     * Builds the swerve module but with the Absolute Encoder disabled.
+     * 
+     * This constructor assumes you zeroed the swerve modules (faced all the bevel gears to the left)
+     * before booting up the robot.
+     * 
+     * @param moduleName The module name, Front Left, Front Right, etc.
+     * @param drivingCANID The CAN ID of the Kraken used to drive the module wheel
+     * @param turningCANID The CAN ID of the Spark MAX used to turn the module wheel
+     */
+    public SwerveModule(String moduleName, int drivingCANID, int turningCANID) {
+        this(moduleName, drivingCANID, turningCANID, -1, -1);
+    }
+
+    /**
+     * Builds the swerve module with the normal features
+     * 
+     * @param moduleName The module name, Front Left, Front Right, etc.
+     * @param drivingCANID The CAN ID of the Kraken used to drive the module wheel
+     * @param turningCANID The CAN ID of the Spark MAX used to turn the module wheel
+     * @param analogEncoderID The Analog In port ID for the Thrify Absolute Encoder
+     * @param analogEncoderOffset The angular offset for the absolute encoder to achieve 0 position on the module 
+     */
     public SwerveModule(String moduleName, int drivingCANID, int turningCANID, int analogEncoderID, double analogEncoderOffset) {
+        isAbsoluteEncoderDisabled = (analogEncoderID == -1) || (analogEncoderOffset < 0);
+
         drive = new TalonFX(drivingCANID);
         turning = new SparkMax(turningCANID, MotorType.kBrushless);
 
         turningRelativeEncoder = turning.getEncoder();
 
-        turningAbsoluteEncoder = new AnalogEncoder(analogEncoderID, 2 * Math.PI, analogEncoderOffset);
-
+        if(!isAbsoluteEncoderDisabled) {
+            turningAbsoluteEncoder = new AnalogEncoder(analogEncoderID, 2 * Math.PI, analogEncoderOffset);
+        }
+        
         turningClosedLoopController = turning.getClosedLoopController();
 
         drive.getConfigurator().apply(ModuleConstants.kDriveCurrentLimitConfig);
@@ -65,7 +94,12 @@ public class SwerveModule {
             PersistMode.kPersistParameters
         );
 
-        turningRelativeEncoder.setPosition(turningAbsoluteEncoder.get());
+        if(isAbsoluteEncoderDisabled){
+            turningRelativeEncoder.setPosition(0);
+        } else {
+            turningRelativeEncoder.setPosition(turningAbsoluteEncoder.get());
+        }
+        
         drive.setPosition(0);
 
         this.moduleName = "Drivetrain/Modules/" + moduleName;
@@ -118,6 +152,10 @@ public class SwerveModule {
     }
 
     public void zeroTurningEncoder() {
-        turningRelativeEncoder.setPosition(turningAbsoluteEncoder.get());
+        if(isAbsoluteEncoderDisabled) {
+            turningRelativeEncoder.setPosition(0);
+        } else {
+            turningRelativeEncoder.setPosition(turningAbsoluteEncoder.get());
+        }
     }
 }
