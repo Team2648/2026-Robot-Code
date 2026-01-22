@@ -45,6 +45,8 @@ public class PhotonVision implements IAprilTagProvider,IVisualPoseProvider {
         this.latestResult = null;
     }
 
+    // TODO This periodic method has to be called from somewhere, even though the cameras
+    // could be used in multiple other subsystems
     public void periodic() {
         // TODO Do we care about missed results? Probably not, if we're taking long enough to miss results something else is wrong
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();

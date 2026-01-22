@@ -4,47 +4,44 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.OIConstants;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
-
-  Boolean isRed;
-
   private Drivetrain drivetrain;
-
-  private Utilities utilities;
 
   private CommandXboxController driver;
 
   private SendableChooser<Command> autoChooser;
+
+  private Timer shiftTimer;
 
   public RobotContainer() {
     drivetrain = new Drivetrain();
 
     driver = new CommandXboxController(OIConstants.kDriverControllerPort);
 
+    shiftTimer = new Timer();
+    shiftTimer.reset();
+
     configureBindings();
   }
   
-
-
-  
-
   private void configureBindings() {
     drivetrain.setDefaultCommand(
       drivetrain.drive(
@@ -55,14 +52,8 @@ public class RobotContainer {
       )
     );
 
-    ShuffleboardTab tab = Shuffleboard.getTab("SideFirst"); 
-
-  if (Utilities.ShiftFirst() == Alliance.Red) {
-    tab.add("IsRed", isRed);
-}
-
+    configureShiftDisplay();
   }
-
 
   public Command getAutonomousCommand() {
     if(AutoConstants.kAutoConfigOk) {
@@ -70,5 +61,56 @@ public class RobotContainer {
     } else {
       return new PrintCommand("Robot Config loading failed, autonomous disabled");
     }
+  }
+
+  private void configureShiftDisplay() {
+    SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+    
+    RobotModeTriggers.autonomous().onTrue(new InstantCommand(() -> {
+      shiftTimer.stop();
+      SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+    }));
+
+    RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> {
+      Elastic.selectTab(OIConstants.kTeleopTab);
+      shiftTimer.reset();
+      shiftTimer.start();
+    }));
+
+    new Trigger(() -> shiftTimer.get() <= 10).onTrue(new InstantCommand(() -> {
+      SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+    }));
+
+    new Trigger(() -> shiftTimer.get() > 10 && shiftTimer.get() <= 35).onTrue(new InstantCommand(() -> {
+      SmartDashboard.putStringArray(
+        OIConstants.kCurrentActiveHub, 
+        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
+      );
+    }));
+
+    new Trigger(() -> shiftTimer.get() > 35 && shiftTimer.get() <= 60).onTrue(new InstantCommand(() -> {
+      SmartDashboard.putStringArray(
+        OIConstants.kCurrentActiveHub, 
+        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
+      );
+    }));
+
+    new Trigger(() -> shiftTimer.get() > 60 && shiftTimer.get() <= 85).onTrue(new InstantCommand(() -> {
+      SmartDashboard.putStringArray(
+        OIConstants.kCurrentActiveHub, 
+        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
+      );
+    }));
+
+    new Trigger(() -> shiftTimer.get() > 85 && shiftTimer.get() <= 110).onTrue(new InstantCommand(() -> {
+      SmartDashboard.putStringArray(
+        OIConstants.kCurrentActiveHub, 
+        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
+      );
+    }));
+
+    new Trigger(() -> shiftTimer.get() > 110).onTrue(new InstantCommand(() -> {
+      SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+    }));
   }
 }
