@@ -11,6 +11,7 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 
 public class ModuleConstants {
@@ -50,6 +51,9 @@ public class ModuleConstants {
     public static final double kTurnP = 1;
     public static final double kTurnI = 0;
     public static final double kTurnD = 0;
+
+    // TODO How sensitive is too sensitive?
+    public static final double kAutoResetPositionDeadband = Units.degreesToRadians(.25);
     
     public static final int kTurnMotorCurrentLimit = 20;
 
@@ -98,5 +102,9 @@ public class ModuleConstants {
             .outputRange(-1, 1)
             .positionWrappingEnabled(true)
             .positionWrappingInputRange(0, 2 * Math.PI);
+        turningConfig.signals
+            .primaryEncoderVelocityAlwaysOn(false)
+            .primaryEncoderPositionAlwaysOn(true)
+            .primaryEncoderPositionPeriodMs(20);
     }
 }
