@@ -114,6 +114,8 @@ public class SwerveModule {
             PersistMode.kPersistParameters
         );
 
+        driveVelocityRequest = new VelocityVoltage(0);
+
         if(isAbsoluteEncoderDisabled){
             turningRelativeEncoder.setPosition(0);
         } else {
@@ -130,9 +132,14 @@ public class SwerveModule {
     }
 
     public void periodic() {
-        Logger.recordOutput(moduleName + "/AbsoluteEncoder/Position", turningAbsoluteEncoder.get());
+        if(!isAbsoluteEncoderDisabled) {
+            Logger.recordOutput(moduleName + "/AbsoluteEncoder/Position", turningAbsoluteEncoder.get());
+        }
+        
+        Logger.recordOutput(moduleName + "ModuleTargetState", lastTargetState);
         Logger.recordOutput(moduleName + "/SwerveModuleState", getState());
         Logger.recordOutput(moduleName + "/SwerveModulePosition", getPosition());
+        Logger.recordOutput(moduleName + "/RelativeEncoderPosition", getTurningEncoderPosition());
 
         if(!isAbsoluteEncoderDisabled && turningEncoderAutoRezeroEnabled) {
             if(Math.abs(getState().angle.getRadians() - lastTargetState.angle.getRadians()) <= ModuleConstants.kAutoResetPositionDeadband) {
@@ -144,22 +151,27 @@ public class SwerveModule {
     public SwerveModuleState getState() {
         return new SwerveModuleState(
             drive.getVelocity().getValueAsDouble() * ModuleConstants.kWheelCircumferenceMeters, 
-            new Rotation2d(turningRelativeEncoder.getPosition())
+            new Rotation2d(getTurningEncoderPosition())
         );
     }
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
             drive.getPosition().getValueAsDouble() * ModuleConstants.kWheelCircumferenceMeters, 
-            new Rotation2d(turningRelativeEncoder.getPosition())
+            new Rotation2d(getTurningEncoderPosition())
         );
+    }
+
+    public void disableOutput() {
+        drive.disable();
+        turning.disable();
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
         // TODO is this really necessary, the offset is managed by the Absolute Encoder
         // and its "source of truth" behavior in relation to the relative encoder
         // Probably doesn't *hurt* that it's here, but it may not be needed
-        desiredState.optimize(new Rotation2d(turningRelativeEncoder.getPosition()));
+        desiredState.optimize(new Rotation2d(getTurningEncoderPosition()));
 
         lastTargetState = desiredState;
 
@@ -175,6 +187,10 @@ public class SwerveModule {
             desiredState.angle.getRadians(), 
             ControlType.kPosition
         );
+    }
+
+    public double getTurningEncoderPosition() {
+        return turningRelativeEncoder.getPosition() * (ModuleConstants.kIsEncoderInverted ? -1 : 1);
     }
 
     public void resetEncoders() {

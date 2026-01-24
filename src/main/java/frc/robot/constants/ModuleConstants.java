@@ -11,13 +11,11 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 
 public class ModuleConstants {
     // DRIVING MOTOR CONFIG (Kraken)
-    // TODO Replace with something other than 0
-    public static final double kDrivingMotorReduction = 0;
+    public static final double kDrivingMotorReduction = (14.0 * 28.0 * 15.0) / (50 * 16 * 45);
 
     public static final double kDrivingMotorFeedSpeedRPS = KrakenMotorConstants.kFreeSpeedRPM / 60;
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
@@ -44,13 +42,14 @@ public class ModuleConstants {
     public static final NeutralModeValue kDriveIdleMode = NeutralModeValue.Brake;
 
     // TURNING MOTOR CONFIG (NEO)
-
-    // TODO Hold over from 2025, adjust?
-    public static final double kTurningMotorReduction = 0;
+    public static final double kTurningMotorReduction = 150.0/7.0;
     public static final double kTurningFactor = 2 * Math.PI / kTurningMotorReduction;
+    // TODO Adjust? Let over from 2025
     public static final double kTurnP = 1;
     public static final double kTurnI = 0;
     public static final double kTurnD = 0;
+
+    public static final boolean kIsEncoderInverted = false;
 
     // TODO How sensitive is too sensitive?
     public static final double kAutoResetPositionDeadband = Units.degreesToRadians(.25);
@@ -93,7 +92,7 @@ public class ModuleConstants {
             .idleMode(kTurnIdleMode)
             .smartCurrentLimit(kTurnMotorCurrentLimit);
         turningConfig.encoder
-            .inverted(true)
+            //.inverted(true)
             .positionConversionFactor(kTurningFactor)
             .velocityConversionFactor(kTurningFactor / 60.0);
         turningConfig.closedLoop

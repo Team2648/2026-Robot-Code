@@ -9,9 +9,8 @@ public class DrivetrainConstants {
     public static final double kMaxSpeedMetersPerSecond = 4.125;
     public static final double kMaxAngularSpeed = 2 * Math.PI;
 
-    // TODO Replace zeros with real numbers
-    public static final double kTrackWidth = Units.inchesToMeters(0);
-    public static final double kWheelBase = Units.inchesToMeters(0);
+    public static final double kTrackWidth = Units.inchesToMeters(23.75);
+    public static final double kWheelBase = Units.inchesToMeters(18.75);
 
     // TODO Replace zeros with real numbers
     // These values should be determinable by writing the magnetic encoder output
@@ -24,26 +23,24 @@ public class DrivetrainConstants {
     public static final double kRearLeftMagEncoderOffset = 0;
     public static final double kRearRightMagEncoderOffset = 0;
 
-    // Kraken CAN IDs 
-    // TODO Real CAN IDs
+    // Kraken CAN IDs
     public static final int kFrontLeftDrivingCANID = 0;
-    public static final int kFrontRightDrivingCANID = 0;
-    public static final int kRearLeftDrivingCANID = 0;
-    public static final int kRearRightDrivingCANID = 0;
+    public static final int kFrontRightDrivingCANID = 1;//3;
+    public static final int kRearLeftDrivingCANID = 3;//1;
+    public static final int kRearRightDrivingCANID = 2;
 
     // SparkMAX CAN IDs
-    // TODO Real CAN IDs
-    public static final int kFrontLeftTurningCANID = 0;
-    public static final int kFrontRightTurningCANID = 0;
-    public static final int kRearLeftTurningCANID = 0;
-    public static final int kRearRightTurningCANID = 0;
+    public static final int kFrontLeftTurningCANID = 8;
+    public static final int kFrontRightTurningCANID = 7;//9;
+    public static final int kRearLeftTurningCANID = 9;//7;
+    public static final int kRearRightTurningCANID = 6;
 
     // Analog Encoder Input Ports 
     // TODO Real Port IDs
     public static final int kFrontLeftAnalogInPort = 0;
-    public static final int kFrontRightAnalogInPort = 0;
-    public static final int kRearLeftAnalogInPort = 0;
-    public static final int kRearRightAnalogInPort = 0;
+    public static final int kFrontRightAnalogInPort = 1;
+    public static final int kRearLeftAnalogInPort = 2;
+    public static final int kRearRightAnalogInPort = 3;
 
     public static final boolean kGyroReversed = true;
 
