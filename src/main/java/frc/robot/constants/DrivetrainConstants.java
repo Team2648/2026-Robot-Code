@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -11,36 +12,26 @@ public class DrivetrainConstants {
 
     public static final double kTrackWidth = Units.inchesToMeters(23.75);
     public static final double kWheelBase = Units.inchesToMeters(18.75);
+ 
+    public static final double kFrontLeftMagEncoderOffset = 2.98;
+    public static final double kFrontRightMagEncoderOffset = 1.18;
+    public static final double kRearLeftMagEncoderOffset = 3.69;
+    public static final double kRearRightMagEncoderOffset = 2.54;
 
-    // TODO Replace zeros with real numbers
-    // These values should be determinable by writing the magnetic encoder output
-    // to the dashboard, and manually aligning all wheels such that the bevel gears
-    // on the side of the wheel all face left. Some known straight edge (like 1x1 or similar)
-    // should be used as the alignment medium. If done correctly, and the modules aren't disassembled,
-    // then these values should work throughout the season the first time they are set. 
-    public static final double kFrontLeftMagEncoderOffset = 0;
-    public static final double kFrontRightMagEncoderOffset = 0;
-    public static final double kRearLeftMagEncoderOffset = 0;
-    public static final double kRearRightMagEncoderOffset = 0;
-
-    // Kraken CAN IDs
     public static final int kFrontLeftDrivingCANID = 0;
-    public static final int kFrontRightDrivingCANID = 1;//3;
-    public static final int kRearLeftDrivingCANID = 3;//1;
+    public static final int kFrontRightDrivingCANID = 3;
+    public static final int kRearLeftDrivingCANID = 1;
     public static final int kRearRightDrivingCANID = 2;
 
-    // SparkMAX CAN IDs
     public static final int kFrontLeftTurningCANID = 8;
-    public static final int kFrontRightTurningCANID = 7;//9;
-    public static final int kRearLeftTurningCANID = 9;//7;
+    public static final int kFrontRightTurningCANID = 9;
+    public static final int kRearLeftTurningCANID = 7;
     public static final int kRearRightTurningCANID = 6;
 
-    // Analog Encoder Input Ports 
-    // TODO Real Port IDs
-    public static final int kFrontLeftAnalogInPort = 0;
-    public static final int kFrontRightAnalogInPort = 1;
-    public static final int kRearLeftAnalogInPort = 2;
-    public static final int kRearRightAnalogInPort = 3;
+    public static final int kFrontLeftAnalogInPort = 3;
+    public static final int kFrontRightAnalogInPort = 2;
+    public static final int kRearLeftAnalogInPort = 0;
+    public static final int kRearRightAnalogInPort = 1;
 
     public static final boolean kGyroReversed = true;
 
