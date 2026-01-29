@@ -180,12 +180,12 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Command drive(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rotation, BooleanSupplier fieldRelative) {
-        // TODO Inversions? Specific Alliance code?
+        // TODO Specific Alliance code?
         return run(() -> {
             drive(
-                MathUtil.applyDeadband(xSpeed.getAsDouble(), OIConstants.kDriveDeadband), 
-                MathUtil.applyDeadband(ySpeed.getAsDouble(), OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(rotation.getAsDouble(), OIConstants.kDriveDeadband), 
+                -MathUtil.applyDeadband(xSpeed.getAsDouble(), OIConstants.kDriveDeadband), 
+                -MathUtil.applyDeadband(ySpeed.getAsDouble(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(rotation.getAsDouble(), OIConstants.kDriveDeadband), 
                 fieldRelative.getAsBoolean()
             );
         });

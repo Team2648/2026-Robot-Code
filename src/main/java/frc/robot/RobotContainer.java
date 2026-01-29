@@ -43,8 +43,8 @@ public class RobotContainer {
   private void configureBindings() {
     drivetrain.setDefaultCommand(
       drivetrain.drive(
+        driver::getLeftY,
         driver::getLeftX, 
-        driver::getLeftY, 
         driver::getRightX, 
         () -> true
       )
