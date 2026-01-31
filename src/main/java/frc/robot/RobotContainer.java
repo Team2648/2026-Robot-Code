@@ -46,7 +46,7 @@ public class RobotContainer {
         driver::getLeftY,
         driver::getLeftX, 
         driver::getRightX, 
-        () -> true
+        () -> false
       )
     );
 
@@ -54,6 +54,7 @@ public class RobotContainer {
     driver.y().whileTrue(drivetrain.runFrontRight());
     driver.a().whileTrue(drivetrain.runRearLeft());
     driver.b().whileTrue(drivetrain.runRearRight());
+    driver.rightBumper().whileTrue(drivetrain.setX());
 
     //drivetrain.setDefaultCommand(drivetrain.disableOutputs());
 
