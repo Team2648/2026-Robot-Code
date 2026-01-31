@@ -48,34 +48,34 @@ public class Drivetrain extends SubsystemBase {
         frontLeft = new SwerveModule(
             "FrontLeft", 
             DrivetrainConstants.kFrontLeftDrivingCANID, 
-            DrivetrainConstants.kFrontLeftTurningCANID, 
+            DrivetrainConstants.kFrontLeftTurningCANID);/*, 
             DrivetrainConstants.kFrontLeftAnalogInPort, 
             DrivetrainConstants.kFrontLeftMagEncoderOffset
-        ); 
+        ); */
 
         frontRight = new SwerveModule(
             "FrontRight", 
             DrivetrainConstants.kFrontRightDrivingCANID, 
-            DrivetrainConstants.kFrontRightTurningCANID, 
+            DrivetrainConstants.kFrontRightTurningCANID);/*, 
             DrivetrainConstants.kFrontRightAnalogInPort, 
             DrivetrainConstants.kFrontRightMagEncoderOffset
-        );
+        );*/
 
         rearLeft = new SwerveModule(
             "RearLeft", 
             DrivetrainConstants.kRearLeftDrivingCANID, 
-            DrivetrainConstants.kRearLeftTurningCANID, 
+            DrivetrainConstants.kRearLeftTurningCANID);/*, 
             DrivetrainConstants.kRearLeftAnalogInPort, 
             DrivetrainConstants.kRearLeftMagEncoderOffset
-        );
+        ); */
 
         rearRight = new SwerveModule(
             "RearRight", 
             DrivetrainConstants.kRearRightDrivingCANID, 
-            DrivetrainConstants.kRearRightTurningCANID, 
+            DrivetrainConstants.kRearRightTurningCANID);/*, 
             DrivetrainConstants.kRearRightAnalogInPort, 
             DrivetrainConstants.kRearRightMagEncoderOffset
-        );
+        ); */
 
         gyro = new AHRS(NavXComType.kMXP_SPI);
 

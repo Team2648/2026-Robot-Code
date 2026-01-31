@@ -101,9 +101,5 @@ public class ModuleConstants {
             .outputRange(-1, 1)
             .positionWrappingEnabled(true)
             .positionWrappingInputRange(0, 2 * Math.PI);
-        turningConfig.signals
-            .primaryEncoderVelocityAlwaysOn(false)
-            .primaryEncoderPositionAlwaysOn(true)
-            .primaryEncoderPositionPeriodMs(20);
     }
 }

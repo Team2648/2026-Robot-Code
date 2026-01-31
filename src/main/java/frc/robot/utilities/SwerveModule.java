@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -44,6 +45,7 @@ public class SwerveModule {
     private String moduleName;
 
     private SwerveModuleState lastTargetState;
+    private SwerveModuleState lastTargetStateOptimized;
 
     private boolean isAbsoluteEncoderDisabled;
     private boolean turningEncoderAutoRezeroEnabled;
@@ -125,6 +127,7 @@ public class SwerveModule {
         drive.setPosition(0);
 
         this.lastTargetState = getState();
+        this.lastTargetStateOptimized = getState();
 
         this.turningEncoderAutoRezeroEnabled = turningEncoderAutoRezeroEnabled;
 
@@ -136,16 +139,18 @@ public class SwerveModule {
             Logger.recordOutput(moduleName + "/AbsoluteEncoder/Position", turningAbsoluteEncoder.get());
         }
         
-        Logger.recordOutput(moduleName + "ModuleTargetState", lastTargetState);
+        Logger.recordOutput(moduleName + "/ModuleTargetState", lastTargetState);
+        Logger.recordOutput(moduleName + "/ModuleTargetStateOptimized", lastTargetStateOptimized);
         Logger.recordOutput(moduleName + "/SwerveModuleState", getState());
         Logger.recordOutput(moduleName + "/SwerveModulePosition", getPosition());
         Logger.recordOutput(moduleName + "/RelativeEncoderPosition", getTurningEncoderPosition());
 
+        /*
         if(!isAbsoluteEncoderDisabled && turningEncoderAutoRezeroEnabled) {
             if(Math.abs(getState().angle.getRadians() - lastTargetState.angle.getRadians()) <= ModuleConstants.kAutoResetPositionDeadband) {
                 resetEncoders();
             }
-        }
+        }*/
     }
 
     public SwerveModuleState getState() {
@@ -168,12 +173,13 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
+        lastTargetState = new SwerveModuleState(desiredState.speedMetersPerSecond, desiredState.angle);
         // TODO is this really necessary, the offset is managed by the Absolute Encoder
         // and its "source of truth" behavior in relation to the relative encoder
         // Probably doesn't *hurt* that it's here, but it may not be needed
         desiredState.optimize(new Rotation2d(getTurningEncoderPosition()));
 
-        lastTargetState = desiredState;
+        lastTargetStateOptimized = desiredState;
 
         drive.setControl(
             driveVelocityRequest.withVelocity(
@@ -190,7 +196,12 @@ public class SwerveModule {
     }
 
     public double getTurningEncoderPosition() {
-        return turningRelativeEncoder.getPosition() * (ModuleConstants.kIsEncoderInverted ? -1 : 1);
+        return MathUtil.inputModulus(
+            turningRelativeEncoder.getPosition(), 
+            0, 
+            2 * Math.PI
+        );
+        //return turningRelativeEncoder.getPosition() * (ModuleConstants.kIsEncoderInverted ? -1 : 1);
     }
 
     public void resetEncoders() {
