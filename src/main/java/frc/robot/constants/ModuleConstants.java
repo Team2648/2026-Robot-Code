@@ -49,7 +49,7 @@ public class ModuleConstants {
     public static final double kTurnI = 0;
     public static final double kTurnD = 0;
 
-    public static final boolean kIsEncoderInverted = true;
+    public static final boolean kIsEncoderInverted = false;
 
     // TODO How sensitive is too sensitive?
     public static final double kAutoResetPositionDeadband = Units.degreesToRadians(.25);
