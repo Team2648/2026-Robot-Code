@@ -90,7 +90,8 @@ public class ModuleConstants {
 
         turningConfig
             .idleMode(kTurnIdleMode)
-            .smartCurrentLimit(kTurnMotorCurrentLimit);
+            .smartCurrentLimit(kTurnMotorCurrentLimit)
+            .inverted(true);
         turningConfig.encoder
             //.inverted(true)
             .positionConversionFactor(kTurningFactor)
@@ -101,5 +102,6 @@ public class ModuleConstants {
             .outputRange(-1, 1)
             .positionWrappingEnabled(true)
             .positionWrappingInputRange(0, 2 * Math.PI);
+            
     }
 }

@@ -134,32 +134,32 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Drivetrain/Heading", getHeading());
     }
 
-    public Command runFrontLeft() {
+    public Command runFrontLeft(double staticSpeed, double staticAngleDegrees) {
         return run(() -> {
             frontLeft.setDesiredState(new SwerveModuleState(
-                1, 
-                new Rotation2d()));
+                staticSpeed, 
+                Rotation2d.fromDegrees(staticAngleDegrees)));
         });
     }
-    public Command runFrontRight() {
+    public Command runFrontRight(double staticSpeed, double staticAngleDegrees) {
         return run(() -> {
             frontRight.setDesiredState(new SwerveModuleState(
-                1, 
-                new Rotation2d()));
+                staticSpeed, 
+                Rotation2d.fromDegrees(staticAngleDegrees)));
         });
     }
-    public Command runRearLeft() {
+    public Command runRearLeft(double staticSpeed, double staticAngleDegrees) {
         return run(() -> {
             rearLeft.setDesiredState(new SwerveModuleState(
-                1, 
-                new Rotation2d()));
+                staticSpeed, 
+                Rotation2d.fromDegrees(staticAngleDegrees)));
         });
     }
-    public Command runRearRight() {
+    public Command runRearRight(double staticSpeed, double staticAngleDegrees) {
         return run(() -> {
             rearRight.setDesiredState(new SwerveModuleState(
-                1, 
-                new Rotation2d()));
+                staticSpeed, 
+                Rotation2d.fromDegrees(staticAngleDegrees)));
         });
     }
 

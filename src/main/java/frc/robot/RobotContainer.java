@@ -50,10 +50,14 @@ public class RobotContainer {
       )
     );
 
-    driver.x().whileTrue(drivetrain.runFrontLeft());
-    driver.y().whileTrue(drivetrain.runFrontRight());
-    driver.a().whileTrue(drivetrain.runRearLeft());
-    driver.b().whileTrue(drivetrain.runRearRight());
+    driver.start().and(driver.x()).whileTrue(drivetrain.runFrontLeft(1, 0));
+    driver.start().and(driver.y()).whileTrue(drivetrain.runFrontRight(1, 0));
+    driver.start().and(driver.a()).whileTrue(drivetrain.runRearLeft(1, 0));
+    driver.start().and(driver.b()).whileTrue(drivetrain.runRearRight(1, 0));
+    driver.start().negate().and(driver.x()).whileTrue(drivetrain.runFrontLeft(0, 45));
+    driver.start().negate().and(driver.y()).whileTrue(drivetrain.runFrontRight(0, 45));
+    driver.start().negate().and(driver.a()).whileTrue(drivetrain.runRearLeft(0, 45));
+    driver.start().negate().and(driver.b()).whileTrue(drivetrain.runRearRight(0, 45));
     driver.rightBumper().whileTrue(drivetrain.setX());
 
     //drivetrain.setDefaultCommand(drivetrain.disableOutputs());
