@@ -134,6 +134,35 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Drivetrain/Heading", getHeading());
     }
 
+    public Command runFrontLeft() {
+        return run(() -> {
+            frontLeft.setDesiredState(new SwerveModuleState(
+                1, 
+                new Rotation2d()));
+        });
+    }
+    public Command runFrontRight() {
+        return run(() -> {
+            frontRight.setDesiredState(new SwerveModuleState(
+                1, 
+                new Rotation2d()));
+        });
+    }
+    public Command runRearLeft() {
+        return run(() -> {
+            rearLeft.setDesiredState(new SwerveModuleState(
+                1, 
+                new Rotation2d()));
+        });
+    }
+    public Command runRearRight() {
+        return run(() -> {
+            rearRight.setDesiredState(new SwerveModuleState(
+                1, 
+                new Rotation2d()));
+        });
+    }
+
     public Command disableOutputs() {
         return run(() -> {
             frontLeft.disableOutput();

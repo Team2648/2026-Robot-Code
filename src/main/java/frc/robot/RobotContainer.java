@@ -50,6 +50,11 @@ public class RobotContainer {
       )
     );
 
+    driver.x().whileTrue(drivetrain.runFrontLeft());
+    driver.y().whileTrue(drivetrain.runFrontRight());
+    driver.a().whileTrue(drivetrain.runRearLeft());
+    driver.b().whileTrue(drivetrain.runRearRight());
+
     //drivetrain.setDefaultCommand(drivetrain.disableOutputs());
 
     configureShiftDisplay();
