@@ -196,12 +196,7 @@ public class SwerveModule {
     }
 
     public double getTurningEncoderPosition() {
-        return MathUtil.inputModulus(
-            turningRelativeEncoder.getPosition(), 
-            0, 
-            2 * Math.PI
-        );
-        //return turningRelativeEncoder.getPosition() * (ModuleConstants.kIsEncoderInverted ? -1 : 1);
+        return turningRelativeEncoder.getPosition() * (ModuleConstants.kIsEncoderInverted ? -1 : 1);
     }
 
     public void resetEncoders() {
