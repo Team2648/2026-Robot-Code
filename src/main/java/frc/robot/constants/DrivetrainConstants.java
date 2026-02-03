@@ -12,10 +12,10 @@ public class DrivetrainConstants {
     public static final double kTrackWidth = Units.inchesToMeters(23.75);
     public static final double kWheelBase = Units.inchesToMeters(18.75);
  
-    public static final double kFrontLeftMagEncoderOffset = 2.98;
-    public static final double kFrontRightMagEncoderOffset = 1.18;
-    public static final double kRearLeftMagEncoderOffset = 3.69;
-    public static final double kRearRightMagEncoderOffset = 2.54;
+    public static final double kFrontLeftMagEncoderOffset = 2.965;
+    public static final double kFrontRightMagEncoderOffset = 1.120;
+    public static final double kRearLeftMagEncoderOffset = 3.761;
+    public static final double kRearRightMagEncoderOffset = 2.573;
 
     public static final int kFrontLeftDrivingCANID = 0;
     public static final int kFrontRightDrivingCANID = 3;

@@ -134,6 +134,7 @@ public class SwerveModule {
     }
 
     public void periodic() {
+        
         if(!isAbsoluteEncoderDisabled) {
             Logger.recordOutput(moduleName + "/AbsoluteEncoder/Position", turningAbsoluteEncoder.get());
         }
