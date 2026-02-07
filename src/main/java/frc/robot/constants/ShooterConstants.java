@@ -28,6 +28,8 @@ public class ShooterConstants {
         }
     }
 
+    // TODO Conversion factor?
+
     public static final double kWheelDiameter = Units.inchesToMeters(6);
 
     // TODO Real values

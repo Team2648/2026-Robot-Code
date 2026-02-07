@@ -32,13 +32,13 @@ public class IntakePivot extends SubsystemBase {
         rightMotor = new SparkMax(IntakePivotConstants.kRightMotorCANID, MotorType.kBrushless);
 
         leftMotor.configure(
-            IntakePivotConstants.leftMotorConfig, 
+            IntakePivotConstants.KLeftMotorConfig, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
 
         rightMotor.configure(
-            IntakePivotConstants.rightMotorConfig, 
+            IntakePivotConstants.kRightMotorConfig, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
@@ -50,13 +50,6 @@ public class IntakePivot extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if(currentTargetPosition == null) {
-            leftMotor.disable();
-            rightMotor.disable();
-        } else {
-            controller.setSetpoint(currentTargetPosition.getPositionRadians(), ControlType.kPosition);
-        }
-
         Logger.recordOutput(
             "IntakePivot/TargetPosition", 
             currentTargetPosition == null ? -1 : currentTargetPosition.getPositionRadians());
@@ -64,19 +57,23 @@ public class IntakePivot extends SubsystemBase {
         Logger.recordOutput("IntakePivot/AtSetpoint", controller.isAtSetpoint());
     }
 
-    public Command setTargetPosition(IntakePivotPosition position) {
-        return runOnce(() -> {
-            currentTargetPosition = position;
+    public Command maintainPosition(IntakePivotPosition position) {
+        currentTargetPosition = position;
+
+        return run(() -> {
+            if(currentTargetPosition == null) {
+                leftMotor.disable();
+            } else {
+                controller.setSetpoint(currentTargetPosition.getPositionRadians(), ControlType.kPosition);
+            }
         });
     }
 
     public Command stop() {
-        return runOnce(() -> {
-            currentTargetPosition = null;
-        });
+        return maintainPosition(null);
     }
 
     public Optional<IntakePivotPosition> getCurrentTargetPosition() {
-        return Optional.of(currentTargetPosition);
+        return Optional.ofNullable(currentTargetPosition);
     }
 }

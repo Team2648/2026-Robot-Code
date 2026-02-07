@@ -40,18 +40,18 @@ public class IntakePivotConstants {
 
     // YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS LINE UNLESS YOU'RE ADDING A CONFIGURATION ITEM
     
-    public static final SparkMaxConfig leftMotorConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig rightMotorConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig KLeftMotorConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig kRightMotorConfig = new SparkMaxConfig();
 
     static {
-        leftMotorConfig
+        KLeftMotorConfig
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
             .inverted(kInvertMotors);
-        leftMotorConfig.absoluteEncoder
+        KLeftMotorConfig.absoluteEncoder
             .positionConversionFactor(kConversionFactor)
             .velocityConversionFactor(kConversionFactor / 60);
-        leftMotorConfig.closedLoop
+        KLeftMotorConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
             .pid(kP, kI, kD)
             .outputRange(-1, 1)
@@ -60,7 +60,7 @@ public class IntakePivotConstants {
             .feedForward
                 .sva(kS, kV, kA);
 
-        rightMotorConfig
+        kRightMotorConfig
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
             .inverted(kInvertMotors)

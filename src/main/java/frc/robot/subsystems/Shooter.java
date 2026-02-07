@@ -29,7 +29,7 @@ public class Shooter extends SubsystemBase {
     private SparkClosedLoopController frontClosedLoopController;
     private SparkClosedLoopController rearClosedLoopController;
 
-    private ShooterSpeeds currentSpeeds;
+    private ShooterSpeeds targetSpeeds;
 
     public Shooter() {
         frontMotor1 = new SparkMax(ShooterConstants.kFrontShooterMotor1CANID, MotorType.kBrushless);
@@ -68,45 +68,19 @@ public class Shooter extends SubsystemBase {
         rearClosedLoopController = rearMotor1.getClosedLoopController();
 
         // TODO Set this to the initial startup speed
-        currentSpeeds = null;
+        targetSpeeds = null;
     }
 
     @Override
     public void periodic() {
-        if(currentSpeeds == null) {
-            if(frontClosedLoopController.getSetpoint() != 0) {
-                frontClosedLoopController.setSetpoint(
-                    0, 
-                    ControlType.kVelocity
-                );
-            }
-
-            if(rearClosedLoopController.getSetpoint() != 0) {
-                rearClosedLoopController.setSetpoint(
-                    0, 
-                    ControlType.kVelocity
-                );
-            }
-        } else {
-            frontClosedLoopController.setSetpoint(
-                currentSpeeds.getFrontRollerMPS(), 
-                ControlType.kVelocity
-            );
-
-            rearClosedLoopController.setSetpoint(
-                currentSpeeds.getRearRollerMPS(), 
-                ControlType.kVelocity
-            );
-        }
-
         Logger.recordOutput(
             "Shooter/FrontRollers/TargetMPS", 
-            currentSpeeds == null ? 0 : currentSpeeds.getFrontRollerMPS()
+            targetSpeeds == null ? 0 : targetSpeeds.getFrontRollerMPS()
         );
 
         Logger.recordOutput(
             "Shooter/RearRollers/TargetMPS", 
-            currentSpeeds == null ? 0 : currentSpeeds.getRearRollerMPS()
+            targetSpeeds == null ? 0 : targetSpeeds.getRearRollerMPS()
         );
 
         Logger.recordOutput("Shooter/FrontRollers/CurrentMPS", frontEncoder.getVelocity());
@@ -117,19 +91,32 @@ public class Shooter extends SubsystemBase {
         Logger.recordOutput("Shooter/RearRollers/AtSetpoint", rearClosedLoopController.isAtSetpoint());
     }
 
-    public Command setCurrentSpeeds(ShooterSpeeds speeds) {
-        return runOnce(() -> {
-            currentSpeeds = speeds;
+    public Command maintainSpeed(ShooterSpeeds speeds) {
+        targetSpeeds = speeds;
+
+        return run(() -> {
+            if(targetSpeeds == null) {
+                frontMotor1.disable();
+                rearMotor1.disable();
+            } else {
+                frontClosedLoopController.setSetpoint(
+                    targetSpeeds.getFrontRollerMPS(), 
+                    ControlType.kVelocity
+                );
+
+                rearClosedLoopController.setSetpoint(
+                    targetSpeeds.getRearRollerMPS(), 
+                    ControlType.kVelocity
+                );
+            }
         });
     }
 
     public Command stop() {
-        return runOnce(() -> {
-            currentSpeeds = null;
-        });
+        return maintainSpeed(null);
     }
 
-    public Optional<ShooterSpeeds> getCurrentSpeeds() {
-        return Optional.ofNullable(currentSpeeds);
+    public Optional<ShooterSpeeds> getTargetSpeeds() {
+        return Optional.ofNullable(targetSpeeds);
     }
 }
