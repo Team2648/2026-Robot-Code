@@ -94,28 +94,28 @@ public class RobotContainer {
     new Trigger(() -> shiftTimer.get() > 10 && shiftTimer.get() <= 35).onTrue(new InstantCommand(() -> {
       SmartDashboard.putStringArray(
         OIConstants.kCurrentActiveHub, 
-        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
+        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
       );
     }));
 
     new Trigger(() -> shiftTimer.get() > 35 && shiftTimer.get() <= 60).onTrue(new InstantCommand(() -> {
       SmartDashboard.putStringArray(
         OIConstants.kCurrentActiveHub, 
-        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
+        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
       );
     }));
 
     new Trigger(() -> shiftTimer.get() > 60 && shiftTimer.get() <= 85).onTrue(new InstantCommand(() -> {
       SmartDashboard.putStringArray(
         OIConstants.kCurrentActiveHub, 
-        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
+        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
       );
     }));
 
     new Trigger(() -> shiftTimer.get() > 85 && shiftTimer.get() <= 110).onTrue(new InstantCommand(() -> {
       SmartDashboard.putStringArray(
         OIConstants.kCurrentActiveHub, 
-        Utilities.ShiftFirst() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
+        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
       );
     }));
 
