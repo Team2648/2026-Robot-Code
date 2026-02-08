@@ -4,29 +4,44 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class SpindexerConstants {
     // TODO Real values
-    public static final int kMotorCANID = 0;
+    public static final int kSpindexerMotorCANID = 0;
+    public static final int kFeederMotorCANID = 0;
 
-    public static final int kStatorCurrentLimit = 80;
-    public static final int kSupplyCurrentLimit = 30;
+    public static final int kSpindexerStatorCurrentLimit = 80;
+    public static final int kSpindexerSupplyCurrentLimit = 30;
+    public static final int kFeederCurrentLimit = 30;
 
-    public static final InvertedValue kInversionState = InvertedValue.Clockwise_Positive;
-    public static final NeutralModeValue kIdleMode = NeutralModeValue.Brake;
+    public static final boolean kFeederMotorInverted = false;
+
+    public static final InvertedValue kSpindexerInversionState = InvertedValue.Clockwise_Positive;
+    public static final NeutralModeValue kSpindexerIdleMode = NeutralModeValue.Brake;
+
+    public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
 
     // YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS LINE UNLESS YOU'RE ADDING A CONFIGURATION ITEM
 
-    public static final CurrentLimitsConfigs kCurrentLimitConfig = new CurrentLimitsConfigs();
-    public static final MotorOutputConfigs kMotorConfig = new MotorOutputConfigs();
+    public static final SparkMaxConfig kFeederConfig = new SparkMaxConfig();
+
+    public static final CurrentLimitsConfigs kSpindexerCurrentLimitConfig = new CurrentLimitsConfigs();
+    public static final MotorOutputConfigs kSpindexerMotorConfig = new MotorOutputConfigs();
     
     static {
-        kCurrentLimitConfig.StatorCurrentLimitEnable = true;
-        kCurrentLimitConfig.SupplyCurrentLimitEnable = true;
-        kCurrentLimitConfig.StatorCurrentLimit = kStatorCurrentLimit;
-        kCurrentLimitConfig.SupplyCurrentLimit = kSupplyCurrentLimit;
+        kSpindexerCurrentLimitConfig.StatorCurrentLimitEnable = true;
+        kSpindexerCurrentLimitConfig.SupplyCurrentLimitEnable = true;
+        kSpindexerCurrentLimitConfig.StatorCurrentLimit = kSpindexerStatorCurrentLimit;
+        kSpindexerCurrentLimitConfig.SupplyCurrentLimit = kSpindexerSupplyCurrentLimit;
 
-        kMotorConfig.Inverted = kInversionState;
-        kMotorConfig.NeutralMode = kIdleMode;
+        kSpindexerMotorConfig.Inverted = kSpindexerInversionState;
+        kSpindexerMotorConfig.NeutralMode = kSpindexerIdleMode;
+
+        kFeederConfig
+            .inverted(kFeederMotorInverted)
+            .smartCurrentLimit(kFeederCurrentLimit)
+            .idleMode(kFeederIdleMode);
     }
 }
