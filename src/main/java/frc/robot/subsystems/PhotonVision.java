@@ -1,9 +1,11 @@
-package frc.robot.utilities;
+package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.function.Consumer;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -15,65 +17,74 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CompetitionConstants;
+import frc.robot.constants.PhotonConstants;
 import frc.robot.interfaces.IAprilTagProvider;
 import frc.robot.interfaces.IVisualPoseProvider;
+import frc.robot.interfaces.IVisualPoseProvider.VisualPose;
+import frc.robot.utilities.PhotonVisionConfig;
 
-public class PhotonVision implements IAprilTagProvider,IVisualPoseProvider {
+public class PhotonVision extends SubsystemBase implements IAprilTagProvider {
+    private PhotonCamera[] cameras;
+    private PhotonPoseEstimator[] estimators;
+    private PhotonPipelineResult[] latestResults;
 
-    private final PhotonCamera camera;
+    private ArrayList<Consumer<VisualPose>> poseEstimateConsumers;
 
-    private final PhotonPoseEstimator photonPoseEstimator;
+    public PhotonVision() {
+        cameras = new PhotonCamera[PhotonConstants.configs.size()];
+        estimators = new PhotonPoseEstimator[PhotonConstants.configs.size()];
+        latestResults = new PhotonPipelineResult[PhotonConstants.configs.size()];
 
-    private final double cameraHeightMeters;
-    private final double cameraPitchRadians;
-
-    private PhotonPipelineResult latestResult;
-
-    public PhotonVision(String cameraName, Transform3d robotToCam, double cameraHeightMeters, double cameraPitchRadians) throws IOException {
-        camera = new PhotonCamera(cameraName);
-
-        photonPoseEstimator = new PhotonPoseEstimator(
-            CompetitionConstants.kTagLayout, 
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
-            robotToCam
-        );
-
-        this.cameraHeightMeters = cameraHeightMeters;
-        this.cameraPitchRadians = cameraPitchRadians;
-
-        this.latestResult = null;
-    }
-
-    // TODO This periodic method has to be called from somewhere, even though the cameras
-    // could be used in multiple other subsystems
-    public void periodic() {
-        // TODO Do we care about missed results? Probably not, if we're taking long enough to miss results something else is wrong
-        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-
-        if(!results.isEmpty()) {
-            latestResult = results.get(results.size() - 1);
+        for(int i = 0; i < PhotonConstants.configs.size(); i++) {
+            cameras[i] = new PhotonCamera(PhotonConstants.configs.get(i).cameraName());
+            estimators[i] = new PhotonPoseEstimator(
+                CompetitionConstants.kTagLayout, 
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
+                PhotonConstants.configs.get(i).robotToCamera()
+            );
+            latestResults[i] = null;
         }
+
+        poseEstimateConsumers = new ArrayList<Consumer<VisualPose>>();
     }
 
     @Override
-    public Optional<VisualPose> getVisualPose() {
-        if(latestResult == null) {
-            return Optional.empty();
+    public void periodic() {
+        for(int i = 0; i < cameras.length; i++) {
+            List<PhotonPipelineResult> results = cameras[i].getAllUnreadResults();
+
+            if(!results.isEmpty()) {
+                latestResults[i] = results.get(results.size() - 1);
+            }
+
+            Optional<EstimatedRobotPose> pose = estimators[i].update(latestResults[i]);
+
+            if(!pose.isEmpty()) {
+                VisualPose visualPose = new VisualPose(
+                    pose.get().estimatedPose.toPose2d(), 
+                    pose.get().timestampSeconds
+                );
+
+                for(Consumer<VisualPose> consumer: poseEstimateConsumers) {
+                    consumer.accept(visualPose);
+                }
+            }
         }
+    }
 
-        Optional<EstimatedRobotPose> pose = photonPoseEstimator.update(latestResult);
-
-        if (pose.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(
-            new VisualPose(
-                pose.get().estimatedPose.toPose2d(), 
-                pose.get().timestampSeconds
-            )
-        );
+    public Trigger tagPrescenseTrigger(int targetTag) {
+        return new Trigger(() -> {
+            return List.of(latestResults).stream()
+                .filter((p) -> p != null)
+                .anyMatch((p) -> {
+                    return p.getTargets().stream().map(PhotonTrackedTarget::getFiducialId).anyMatch((i) -> {
+                        return i == targetTag;
+                    });
+                });
+            });
     }
 
     @Override
