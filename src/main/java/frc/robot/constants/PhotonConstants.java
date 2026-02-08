@@ -18,6 +18,8 @@ public class PhotonConstants {
     public static final double kCamera2HeightMeters = 0;
     public static final double kCamera2PitchRadians = 0;
 
+    // YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS LINE UNLESS YOU'RE ADDING A CONFIGURATION ITEM
+
     public static final List<PhotonVisionConfig> configs = List.of(
         new PhotonVisionConfig(kCamera1Name, kCamera1RobotToCam, kCamera1HeightMeters, kCamera1PitchRadians),
         new PhotonVisionConfig(kCamera2Name, kCamera2RobotToCam, kCamera2HeightMeters, kCamera2PitchRadians)
