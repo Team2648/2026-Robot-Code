@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.OIConstants;
-import frc.robot.utilities.PhotonVision;
 import frc.robot.utilities.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
