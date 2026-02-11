@@ -22,10 +22,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.AutoConstants;
+import frc.robot.constants.CompetitionConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.OIConstants;
 import frc.robot.interfaces.IVisualPoseProvider.VisualPose;
@@ -41,10 +43,12 @@ public class Drivetrain extends SubsystemBase {
 
     private SwerveDrivePoseEstimator estimator;
 
+    private PIDController yawRotationController;
+
     private PhotonVision camera1;
     private PhotonVision camera2;
 
-    public Drivetrain() {
+    public Drivetrain(Pose2d startupPose) {
         frontLeft = new SwerveModule(
             "FrontLeft", 
             DrivetrainConstants.kFrontLeftDrivingCANID, 
@@ -79,6 +83,14 @@ public class Drivetrain extends SubsystemBase {
 
         gyro = new AHRS(NavXComType.kMXP_SPI);
 
+        yawRotationController = new PIDController(
+            AutoConstants.kPThetaController, 
+            0, 
+            0
+        );
+        yawRotationController.enableContinuousInput(-Math.PI, Math.PI);
+        yawRotationController.setTolerance(AutoConstants.kYawPIDTolerance);
+
         // TODO 2025 used non-standard deviations for encoder/gyro inputs and vision, will need to be tuned for 2026 in the future
         estimator = new SwerveDrivePoseEstimator(
             DrivetrainConstants.kDriveKinematics, 
@@ -89,7 +101,7 @@ public class Drivetrain extends SubsystemBase {
                 rearLeft.getPosition(),
                 rearRight.getPosition()
             },
-            new Pose2d()
+            startupPose != null ? startupPose : new Pose2d()
         );
 
         if(AutoConstants.kAutoConfigOk) {
@@ -131,7 +143,7 @@ public class Drivetrain extends SubsystemBase {
 
         Logger.recordOutput("Drivetrain/Pose", getPose());
         Logger.recordOutput("Drivetrain/Gyro Angle", getGyroValue());
-        Logger.recordOutput("Drivetrain/Heading", getHeading());
+        Logger.recordOutput("Drivetrain/Heading", getHeadingDegrees());
     }
 
     public Command runFrontLeft(double staticSpeed, double staticAngleDegrees) {
@@ -170,6 +182,66 @@ public class Drivetrain extends SubsystemBase {
             rearLeft.disableOutput();
             rearRight.disableOutput();
         });  
+    }
+
+    public Command rotateToPose(Pose2d targetPose, boolean rotate180) {
+        return runOnce(yawRotationController::reset).andThen(
+            drive(
+                () -> 0,
+                () -> 0, 
+                () -> {
+                    Rotation2d targetRotation = new Rotation2d(
+                        targetPose.getX() - getPose().getX(), 
+                        targetPose.getY() - getPose().getY()
+                    );
+
+                    if(rotate180) {
+                        targetRotation = targetRotation.rotateBy(Rotation2d.k180deg);
+                    }
+
+                    return yawRotationController.calculate(
+                        getHeading().getRadians(),
+                        targetRotation.getRadians()
+                    );
+                }, 
+                () -> true
+            ))
+            .until(yawRotationController::atSetpoint);
+    }
+
+    public Command lockRotationToHub(DoubleSupplier xSpeed, DoubleSupplier ySpeed, boolean rotate180) {
+        return runOnce(yawRotationController::reset).andThen(
+            drive(
+                xSpeed,
+                ySpeed, 
+                () -> {
+                    Optional<Alliance> alliance = DriverStation.getAlliance();
+
+                    if(alliance.isEmpty()) {
+                        return 0;
+                    }
+
+                    Pose2d faceTowards = alliance.get() == Alliance.Blue ?
+                        CompetitionConstants.kBlueHubLocation :
+                        CompetitionConstants.kRedHubLocation;
+
+                    Rotation2d targetRotation = new Rotation2d(
+                        faceTowards.getX() - getPose().getX(), 
+                        faceTowards.getY() - getPose().getY()
+                    );
+
+                    if(rotate180) {
+                        targetRotation = targetRotation.rotateBy(Rotation2d.k180deg);
+                    }
+
+                    return yawRotationController.calculate(
+                        getHeading().getRadians(),
+                        targetRotation.getRadians()
+                    );
+                }, 
+                () -> true
+            )
+        );
     }
 
     // TODO check both cameras
@@ -314,7 +386,11 @@ public class Drivetrain extends SubsystemBase {
         return gyro.getAngle() * (DrivetrainConstants.kGyroReversed ? -1 : 1);
     }
 
-    public double getHeading() {
+    public Rotation2d getHeading() {
+        return estimator.getEstimatedPosition().getRotation();
+    }
+
+    public double getHeadingDegrees() {
         return estimator.getEstimatedPosition().getRotation().getDegrees();
     }
 }

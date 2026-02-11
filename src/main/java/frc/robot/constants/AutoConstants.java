@@ -10,6 +10,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 
 // TODO This is all hold over from 2025, does any of it need to change?
 public class AutoConstants {
@@ -22,6 +23,8 @@ public class AutoConstants {
 
     public static final double kPXYController = 3.5;
     public static final double kPThetaController = 5;
+
+    public static final double kYawPIDTolerance = Units.degreesToRadians(2);
 
     public static final double kAlignPXYController = 2;
     public static final double kAlignPThetaController = 5;

@@ -5,6 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,110 +26,125 @@ import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
-  private PhotonVision vision;
-  private Drivetrain drivetrain;
+    private PhotonVision vision;
+    private Drivetrain drivetrain;
 
-  private CommandXboxController driver;
+    private CommandXboxController driver;
 
-  private SendableChooser<Command> autoChooser;
+    private SendableChooser<Command> autoChooser;
 
-  private Timer shiftTimer;
+    private Timer shiftTimer;
 
-  public RobotContainer() {
-    vision = new PhotonVision();
-    drivetrain = new Drivetrain();
+    public RobotContainer() {
+        vision = new PhotonVision();
+        drivetrain = new Drivetrain(null);
 
-    vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
+        vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
 
-    driver = new CommandXboxController(OIConstants.kDriverControllerPort);
+        driver = new CommandXboxController(OIConstants.kDriverControllerPort);
 
-    shiftTimer = new Timer();
-    shiftTimer.reset();
+        shiftTimer = new Timer();
+        shiftTimer.reset();
 
-    configureBindings();
-  }
-  
-  private void configureBindings() {
-    drivetrain.setDefaultCommand(
-      drivetrain.drive(
-        driver::getLeftY,
-        driver::getLeftX, 
-        driver::getRightX, 
-        () -> false
-      )
-    );
+        configureBindings();
+        configureShiftDisplay();
 
-    driver.start().and(driver.x()).whileTrue(drivetrain.runFrontLeft(1, 0));
-    driver.start().and(driver.y()).whileTrue(drivetrain.runFrontRight(1, 0));
-    driver.start().and(driver.a()).whileTrue(drivetrain.runRearLeft(1, 0));
-    driver.start().and(driver.b()).whileTrue(drivetrain.runRearRight(1, 0));
-    driver.start().negate().and(driver.x()).whileTrue(drivetrain.runFrontLeft(0, 45));
-    driver.start().negate().and(driver.y()).whileTrue(drivetrain.runFrontRight(0, 45));
-    driver.start().negate().and(driver.a()).whileTrue(drivetrain.runRearLeft(0, 45));
-    driver.start().negate().and(driver.b()).whileTrue(drivetrain.runRearRight(0, 45));
-    driver.rightBumper().whileTrue(drivetrain.setX());
-
-    //drivetrain.setDefaultCommand(drivetrain.disableOutputs());
-
-    configureShiftDisplay();
-  }
-
-  public Command getAutonomousCommand() {
-    if(AutoConstants.kAutoConfigOk) {
-      return autoChooser.getSelected();
-    } else {
-      return new PrintCommand("Robot Config loading failed, autonomous disabled");
+        if(AutoConstants.kAutoConfigOk) {
+            autoChooser = AutoBuilder.buildAutoChooser();
+            configureNamedCommands();
+        }
     }
-  }
+  
+    private void configureBindings() {
+        drivetrain.setDefaultCommand(
+            drivetrain.drive(
+                driver::getLeftY,
+                driver::getLeftX, 
+                driver::getRightX, 
+                () -> true
+            )
+        );
 
-  private void configureShiftDisplay() {
-    SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
-    
-    RobotModeTriggers.autonomous().onTrue(new InstantCommand(() -> {
-      shiftTimer.stop();
-      SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
-    }));
+        driver.a().whileTrue(
+            drivetrain.lockRotationToHub(
+                driver::getLeftY, 
+                driver::getLeftX, 
+                false // TODO Should this be true by default?
+            ) 
+        );
+    }
 
-    RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> {
-      Elastic.selectTab(OIConstants.kTeleopTab);
-      shiftTimer.reset();
-      shiftTimer.start();
-    }));
+    private void configureNamedCommands() {
+        NamedCommands.registerCommand(
+            "Drivetrain Set X", 
+            drivetrain.setX()
+        );
 
-    new Trigger(() -> shiftTimer.get() <= 10).onTrue(new InstantCommand(() -> {
-      SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
-    }));
+        NamedCommands.registerCommand(
+            "Drivetrain Face Hub", 
+            drivetrain.rotateToPose(
+                Utilities.getHubPose(),
+                false // TODO Should this be true by default?
+            )
+        );
+    }
 
-    new Trigger(() -> shiftTimer.get() > 10 && shiftTimer.get() <= 35).onTrue(new InstantCommand(() -> {
-      SmartDashboard.putStringArray(
-        OIConstants.kCurrentActiveHub, 
-        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
-      );
-    }));
+    public Command getAutonomousCommand() {
+        if(AutoConstants.kAutoConfigOk) {
+            return autoChooser.getSelected();
+        } else {
+            return new PrintCommand("Robot Config loading failed, autonomous disabled");
+        }
+    }
 
-    new Trigger(() -> shiftTimer.get() > 35 && shiftTimer.get() <= 60).onTrue(new InstantCommand(() -> {
-      SmartDashboard.putStringArray(
-        OIConstants.kCurrentActiveHub, 
-        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
-      );
-    }));
+    private void configureShiftDisplay() {
+        SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+        
+        RobotModeTriggers.autonomous().onTrue(new InstantCommand(() -> {
+            shiftTimer.stop();
+            SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+        }));
 
-    new Trigger(() -> shiftTimer.get() > 60 && shiftTimer.get() <= 85).onTrue(new InstantCommand(() -> {
-      SmartDashboard.putStringArray(
-        OIConstants.kCurrentActiveHub, 
-        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
-      );
-    }));
+        RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> {
+            Elastic.selectTab(OIConstants.kTeleopTab);
+            shiftTimer.reset();
+            shiftTimer.start();
+        }));
 
-    new Trigger(() -> shiftTimer.get() > 85 && shiftTimer.get() <= 110).onTrue(new InstantCommand(() -> {
-      SmartDashboard.putStringArray(
-        OIConstants.kCurrentActiveHub, 
-        Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
-      );
-    }));
+        new Trigger(() -> shiftTimer.get() <= 10).onTrue(new InstantCommand(() -> {
+            SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+        }));
 
-    new Trigger(() -> shiftTimer.get() > 110).onTrue(new InstantCommand(() -> {
-      SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
-    }));
-  }
+        new Trigger(() -> shiftTimer.get() > 10 && shiftTimer.get() <= 35).onTrue(new InstantCommand(() -> {
+            SmartDashboard.putStringArray(
+                OIConstants.kCurrentActiveHub, 
+                Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
+            );
+        }));
+
+        new Trigger(() -> shiftTimer.get() > 35 && shiftTimer.get() <= 60).onTrue(new InstantCommand(() -> {
+            SmartDashboard.putStringArray(
+                OIConstants.kCurrentActiveHub, 
+                Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
+            );
+        }));
+
+        new Trigger(() -> shiftTimer.get() > 60 && shiftTimer.get() <= 85).onTrue(new InstantCommand(() -> {
+            SmartDashboard.putStringArray(
+                OIConstants.kCurrentActiveHub, 
+                Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kRedDisplay : OIConstants.kBlueDisplay
+            );
+        }));
+
+        new Trigger(() -> shiftTimer.get() > 85 && shiftTimer.get() <= 110).onTrue(new InstantCommand(() -> {
+            SmartDashboard.putStringArray(
+                OIConstants.kCurrentActiveHub, 
+                Utilities.whoHasFirstShift() == Alliance.Red ? OIConstants.kBlueDisplay : OIConstants.kRedDisplay
+            );
+        }));
+
+        new Trigger(() -> shiftTimer.get() > 110).onTrue(new InstantCommand(() -> {
+            SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
+        }));
+    }
 }

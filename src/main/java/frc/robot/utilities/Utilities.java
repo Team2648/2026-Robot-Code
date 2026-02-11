@@ -1,7 +1,11 @@
 package frc.robot.utilities;
 
+import java.util.Optional;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.constants.CompetitionConstants;
 
 public class Utilities {
     public static final double kG = -9.81;
@@ -21,6 +25,16 @@ public class Utilities {
         }
         
         return null;
+    }
+
+    public static Pose2d getHubPose() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+
+        if(alliance.isEmpty() || alliance.get() == Alliance.Blue) {
+            return CompetitionConstants.kBlueHubLocation;
+        } else {
+            return CompetitionConstants.kRedHubLocation;
+        }
     }
 
     /**
