@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.OIConstants;
+import frc.robot.interfaces.IVisualPoseProvider.VisualPose;
 import frc.robot.utilities.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
@@ -172,7 +173,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     // TODO check both cameras
-    public Command driveAprilTagLock(DoubleSupplier xSpeed, DoubleSupplier ySpeed, double deadband, int tagID) {
+    /*public Command driveAprilTagLock(DoubleSupplier xSpeed, DoubleSupplier ySpeed, double deadband, int tagID) {
         if (camera1 == null) {
             return new PrintCommand("Camera 1 not available");
         }
@@ -196,7 +197,7 @@ public class Drivetrain extends SubsystemBase {
                 () -> false
            )
         );
-    }
+    }*/
 
     public Command drivePathPlannerPath(PathPlannerPath path) {
         if(AutoConstants.kAutoConfigOk) {
@@ -226,6 +227,13 @@ public class Drivetrain extends SubsystemBase {
             rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
             rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
         });
+    }
+
+    public void consumeVisualPose(VisualPose pose) {
+        estimator.addVisionMeasurement(
+            pose.visualPose(), 
+            pose.timestamp()
+        );
     }
 
     public void resetEncoders() {

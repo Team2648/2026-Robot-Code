@@ -17,10 +17,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.OIConstants;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.PhotonVision;
 import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
+  private PhotonVision vision;
   private Drivetrain drivetrain;
 
   private CommandXboxController driver;
@@ -30,7 +32,10 @@ public class RobotContainer {
   private Timer shiftTimer;
 
   public RobotContainer() {
+    vision = new PhotonVision();
     drivetrain = new Drivetrain();
+
+    vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
 
     driver = new CommandXboxController(OIConstants.kDriverControllerPort);
 

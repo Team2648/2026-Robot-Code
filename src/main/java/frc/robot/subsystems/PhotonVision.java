@@ -2,10 +2,12 @@ package frc.robot.subsystems;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -26,17 +28,17 @@ import frc.robot.interfaces.IVisualPoseProvider;
 import frc.robot.interfaces.IVisualPoseProvider.VisualPose;
 import frc.robot.utilities.PhotonVisionConfig;
 
-public class PhotonVision extends SubsystemBase implements IAprilTagProvider {
+public class PhotonVision extends SubsystemBase {
     private PhotonCamera[] cameras;
     private PhotonPoseEstimator[] estimators;
-    private PhotonPipelineResult[] latestResults;
+    private List<PhotonPipelineResult> latestResults;
 
     private ArrayList<Consumer<VisualPose>> poseEstimateConsumers;
 
     public PhotonVision() {
         cameras = new PhotonCamera[PhotonConstants.configs.size()];
         estimators = new PhotonPoseEstimator[PhotonConstants.configs.size()];
-        latestResults = new PhotonPipelineResult[PhotonConstants.configs.size()];
+        latestResults = new ArrayList<PhotonPipelineResult>();
 
         for(int i = 0; i < PhotonConstants.configs.size(); i++) {
             cameras[i] = new PhotonCamera(PhotonConstants.configs.get(i).cameraName());
@@ -45,7 +47,7 @@ public class PhotonVision extends SubsystemBase implements IAprilTagProvider {
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
                 PhotonConstants.configs.get(i).robotToCamera()
             );
-            latestResults[i] = null;
+            latestResults.add(null);
         }
 
         poseEstimateConsumers = new ArrayList<Consumer<VisualPose>>();
@@ -57,10 +59,10 @@ public class PhotonVision extends SubsystemBase implements IAprilTagProvider {
             List<PhotonPipelineResult> results = cameras[i].getAllUnreadResults();
 
             if(!results.isEmpty()) {
-                latestResults[i] = results.get(results.size() - 1);
+                latestResults.set(i, results.get(results.size() - 1));
             }
 
-            Optional<EstimatedRobotPose> pose = estimators[i].update(latestResults[i]);
+            Optional<EstimatedRobotPose> pose = estimators[i].update(latestResults.get(i));
 
             if(!pose.isEmpty()) {
                 VisualPose visualPose = new VisualPose(
@@ -75,7 +77,27 @@ public class PhotonVision extends SubsystemBase implements IAprilTagProvider {
         }
     }
 
-    public Trigger tagPrescenseTrigger(int targetTag) {
+    public void testMethod(int targetID) {
+        Optional<PhotonTrackedTarget> target = latestResults.stream()
+            .filter((p) -> p != null)
+            .map(PhotonPipelineResult::getTargets)
+            .map(List::stream)
+            .reduce(Stream::concat)
+            .get()
+            .filter((p) -> p.getFiducialId() == targetID)
+            .max(
+                Comparator.comparingDouble((ptt) -> {
+                    return (double)ptt.getDetectedObjectConfidence();
+                })
+            );
+
+    }
+
+    public void addPoseEstimateConsumer(Consumer<VisualPose> consumer) {
+        poseEstimateConsumers.add(consumer);
+    }
+
+    /*public Trigger tagPrescenseTrigger(int targetTag) {
         return new Trigger(() -> {
             return List.of(latestResults).stream()
                 .filter((p) -> p != null)
@@ -85,8 +107,8 @@ public class PhotonVision extends SubsystemBase implements IAprilTagProvider {
                     });
                 });
             });
-    }
-
+    }*/
+/* 
     @Override
     public OptionalDouble getTagDistanceFromCameraByID(int id) {
         if (latestResult == null) {
@@ -172,5 +194,5 @@ public class PhotonVision extends SubsystemBase implements IAprilTagProvider {
 
         return latestResult.getTargets().stream().mapToInt(PhotonTrackedTarget::getFiducialId).toArray();
     }
-    
+    */
 }
