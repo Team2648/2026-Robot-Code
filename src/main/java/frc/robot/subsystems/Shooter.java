@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -18,54 +19,54 @@ import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.ShooterConstants.ShooterSpeeds;
 
 public class Shooter extends SubsystemBase {
-    private SparkMax frontMotor1;
-    private SparkMax frontMotor2;
-    private SparkMax rearMotor1;
-    private SparkMax rearMotor2;
+    private SparkMax leftMotor1;
+    private SparkMax leftMotor2;
+    private SparkMax rightMotor1;
+    private SparkMax rightMotor2;
 
-    private AbsoluteEncoder frontEncoder;
-    private AbsoluteEncoder rearEncoder;
+    private AbsoluteEncoder leftEncoder;
+    private AbsoluteEncoder rightEncoder;
 
-    private SparkClosedLoopController frontClosedLoopController;
-    private SparkClosedLoopController rearClosedLoopController;
+    private SparkClosedLoopController leftClosedLoopController;
+    private SparkClosedLoopController rightClosedLoopController;
 
     private ShooterSpeeds targetSpeeds;
 
     public Shooter() {
-        frontMotor1 = new SparkMax(ShooterConstants.kFrontShooterMotor1CANID, MotorType.kBrushless);
-        frontMotor2 = new SparkMax(ShooterConstants.kFrontShooterMotor2CANID, MotorType.kBrushless);
-        rearMotor1 = new SparkMax(ShooterConstants.kRearShooterMotor1CANID, MotorType.kBrushless);
-        rearMotor2 = new SparkMax(ShooterConstants.kRearShooterMotor2CANID, MotorType.kBrushless);
+        leftMotor1 = new SparkMax(ShooterConstants.kLeftShooterMotor1CANID, MotorType.kBrushless);
+        leftMotor2 = new SparkMax(ShooterConstants.kLeftShooterMotor2CANID, MotorType.kBrushless);
+        rightMotor1 = new SparkMax(ShooterConstants.kRightShooterMotor1CANID, MotorType.kBrushless);
+        rightMotor2 = new SparkMax(ShooterConstants.kRightShooterMotor2CANID, MotorType.kBrushless);
 
-        frontMotor1.configure(
-            ShooterConstants.kFrontMotor1Config, 
+        leftMotor1.configure(
+            ShooterConstants.kLeftMotor1Config, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
 
-        rearMotor1.configure(
-            ShooterConstants.kRearMotor1Config, 
+        rightMotor1.configure(
+            ShooterConstants.kRightMotor1Config, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
 
-        frontMotor2.configure(
-            ShooterConstants.kFrontMotor2Config, 
+        leftMotor2.configure(
+            ShooterConstants.kLeftMotor2Config, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
 
-        rearMotor2.configure(
-            ShooterConstants.kRearMotor2Config, 
+        rightMotor2.configure(
+            ShooterConstants.kRightMotor2Config, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
 
-        frontEncoder = frontMotor1.getAbsoluteEncoder();
-        rearEncoder = rearMotor1.getAbsoluteEncoder();
+        leftEncoder = leftMotor1.getAbsoluteEncoder();
+        rightEncoder = rightMotor1.getAbsoluteEncoder();
 
-        frontClosedLoopController = frontMotor1.getClosedLoopController();
-        rearClosedLoopController = rearMotor1.getClosedLoopController();
+        leftClosedLoopController = leftMotor1.getClosedLoopController();
+        rightClosedLoopController = rightMotor1.getClosedLoopController();
 
         // TODO Set this to the initial startup speed
         targetSpeeds = null;
@@ -74,21 +75,16 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         Logger.recordOutput(
-            "Shooter/FrontRollers/TargetMPS", 
-            targetSpeeds == null ? 0 : targetSpeeds.getFrontRollerMPS()
+            "Shooter/TargetMPS", 
+            targetSpeeds == null ? 0 : targetSpeeds.getSpeedMPS()
         );
 
-        Logger.recordOutput(
-            "Shooter/RearRollers/TargetMPS", 
-            targetSpeeds == null ? 0 : targetSpeeds.getRearRollerMPS()
-        );
-
-        Logger.recordOutput("Shooter/FrontRollers/CurrentMPS", frontEncoder.getVelocity());
-        Logger.recordOutput("Shooter/RearRollers/CurrentMPS", rearEncoder.getVelocity());
+        Logger.recordOutput("Shooter/LeftRollers/CurrentMPS", leftEncoder.getVelocity());
+        Logger.recordOutput("Shooter/RightRollers/CurrentMPS", rightEncoder.getVelocity());
 
         // TODO How does the SparkMAX controller determine "at setpoint"? Is there any tolerance?
-        Logger.recordOutput("Shooter/FrontRollers/AtSetpoint", frontClosedLoopController.isAtSetpoint());
-        Logger.recordOutput("Shooter/RearRollers/AtSetpoint", rearClosedLoopController.isAtSetpoint());
+        Logger.recordOutput("Shooter/LeftRollers/AtSetpoint", leftClosedLoopController.isAtSetpoint());
+        Logger.recordOutput("Shooter/RightRollers/AtSetpoint", rightClosedLoopController.isAtSetpoint());
     }
 
     public Command maintainSpeed(ShooterSpeeds speeds) {
@@ -96,24 +92,37 @@ public class Shooter extends SubsystemBase {
 
         return run(() -> {
             if(targetSpeeds == null) {
-                frontMotor1.disable();
-                rearMotor1.disable();
+                leftMotor1.disable();
+                rightMotor1.disable();
             } else {
-                frontClosedLoopController.setSetpoint(
-                    targetSpeeds.getFrontRollerMPS(), 
+                leftClosedLoopController.setSetpoint(
+                    targetSpeeds.getSpeedMPS(), 
                     ControlType.kVelocity
                 );
 
-                rearClosedLoopController.setSetpoint(
-                    targetSpeeds.getRearRollerMPS(), 
+                rightClosedLoopController.setSetpoint(
+                    targetSpeeds.getSpeedMPS(), 
                     ControlType.kVelocity
                 );
             }
         });
     }
 
+    public Command manualSpeed(DoubleSupplier speed) {
+        targetSpeeds = null;
+
+        return run(() -> {
+            leftMotor1.set(speed.getAsDouble());
+            rightMotor1.set(speed.getAsDouble());
+        });
+    }
+
     public Command stop() {
-        return maintainSpeed(null);
+        return manualSpeed(() -> 0);
+    }
+
+    public double getAverageActualSpeeds() {
+        return (leftEncoder.getVelocity() + rightEncoder.getVelocity()) / 2;
     }
 
     public Optional<ShooterSpeeds> getTargetSpeeds() {

@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 public class CompetitionConstants {
@@ -13,6 +14,11 @@ public class CompetitionConstants {
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(
         AprilTagFields.kDefaultField
     );
+
+    public static final double kHubGoalHeightMeters = Units.inchesToMeters(72);
+
+    // TODO Real Values
+    public static final Transform3d KRobotToShooter = new Transform3d();
 
     public static final Pose2d kBlueHubLocation = new Pose2d(
         Units.inchesToMeters(182.11), 

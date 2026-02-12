@@ -21,9 +21,10 @@ public class IntakePivotConstants {
     }
 
     public static final int kLeftMotorCANID = 0;
-    public static final int kRightMotorCANID = 1;
+    public static final int kRightMotorCANID = 0;
 
     public static final double kConversionFactor = 0;
+    public static final double kMaxManualSpeedMultiplier = .5;
 
     public static final double kP = 0;
     public static final double kI = 0;

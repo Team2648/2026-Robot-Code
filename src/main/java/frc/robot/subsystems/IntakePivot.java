@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -69,8 +70,16 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
+    public Command manualSpeed(DoubleSupplier speed) {
+        currentTargetPosition = null;
+
+        return run(() -> {
+            leftMotor.set(speed.getAsDouble() * IntakePivotConstants.kMaxManualSpeedMultiplier);
+        });
+    }
+
     public Command stop() {
-        return maintainPosition(null);
+        return manualSpeed(() -> 0);
     }
 
     public Optional<IntakePivotPosition> getCurrentTargetPosition() {

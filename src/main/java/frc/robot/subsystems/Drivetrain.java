@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -30,8 +29,8 @@ import frc.robot.constants.AutoConstants;
 import frc.robot.constants.CompetitionConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.OIConstants;
-import frc.robot.interfaces.IVisualPoseProvider.VisualPose;
 import frc.robot.utilities.SwerveModule;
+import frc.robot.utilities.VisualPose;
 
 public class Drivetrain extends SubsystemBase {
     private SwerveModule frontLeft;
@@ -44,9 +43,6 @@ public class Drivetrain extends SubsystemBase {
     private SwerveDrivePoseEstimator estimator;
 
     private PIDController yawRotationController;
-
-    private PhotonVision camera1;
-    private PhotonVision camera2;
 
     public Drivetrain(Pose2d startupPose) {
         frontLeft = new SwerveModule(

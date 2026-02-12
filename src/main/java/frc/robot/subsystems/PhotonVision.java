@@ -24,9 +24,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CompetitionConstants;
 import frc.robot.constants.PhotonConstants;
 import frc.robot.interfaces.IAprilTagProvider;
-import frc.robot.interfaces.IVisualPoseProvider;
-import frc.robot.interfaces.IVisualPoseProvider.VisualPose;
 import frc.robot.utilities.PhotonVisionConfig;
+import frc.robot.utilities.VisualPose;
 
 public class PhotonVision extends SubsystemBase {
     private PhotonCamera[] cameras;

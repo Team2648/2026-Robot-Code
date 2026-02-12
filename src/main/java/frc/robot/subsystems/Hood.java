@@ -48,10 +48,16 @@ public class Hood extends SubsystemBase {
         });
     }
 
-    public Command stop() {
+    public Command manualSpeed(DoubleSupplier speed) {
+        currentTargetRadians = 0;
+
         return run(() -> {
-            motor.disable();
+            motor.set(speed.getAsDouble() * HoodConstants.kMaxManualSpeedMultiplier);
         });
+    }
+
+    public Command stop() {
+        return manualSpeed(() -> 0);
     }
 
     public double getTargetRadians() {

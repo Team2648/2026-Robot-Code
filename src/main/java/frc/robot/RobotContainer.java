@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,15 +21,23 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.AutoConstants;
+import frc.robot.constants.CompetitionConstants;
+import frc.robot.constants.HoodConstants;
 import frc.robot.constants.OIConstants;
+import frc.robot.constants.ShooterConstants;
+import frc.robot.constants.ShooterConstants.ShooterSpeeds;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.PhotonVision;
+import frc.robot.subsystems.Shooter;
 import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
     private PhotonVision vision;
     private Drivetrain drivetrain;
+    private Hood hood;
+    private Shooter shooter;
 
     private CommandXboxController driver;
 
@@ -38,6 +48,8 @@ public class RobotContainer {
     public RobotContainer() {
         vision = new PhotonVision();
         drivetrain = new Drivetrain(null);
+        hood = new Hood();
+        shooter = new Shooter();
 
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
 
@@ -72,6 +84,33 @@ public class RobotContainer {
                 false // TODO Should this be true by default?
             ) 
         );
+
+        shooter.setDefaultCommand(
+            shooter.maintainSpeed(ShooterSpeeds.kHubSpeed)
+        );
+
+        hood.setDefaultCommand(hood.trackToAngle(() -> {
+            Pose2d drivetrainPose = drivetrain.getPose();
+            Pose2d hubPose = Utilities.getHubPose();
+
+            double distance = drivetrainPose.getTranslation()
+                .plus(CompetitionConstants.KRobotToShooter.getTranslation().toTranslation2d())
+                .getDistance(hubPose.getTranslation());
+                
+            if(HoodConstants.kUseInterpolatorForAngle) {
+                return HoodConstants.kDistanceToAngle.get(distance);
+            } else {
+                // TODO The average actual speeds isn't <i>really</i> the exit velocity of the ball
+                // on a hooded shooter, based on documentation, it's more like 30-50% depending on
+                // hood material, surface friction, etc.
+                return Utilities.shotAngle(
+                    shooter.getAverageActualSpeeds(), 
+                    distance, 
+                    CompetitionConstants.kHubGoalHeightMeters - ShooterConstants.kShooterHeightMeters, 
+                    false
+                );
+            }
+        }));
     }
 
     private void configureNamedCommands() {
