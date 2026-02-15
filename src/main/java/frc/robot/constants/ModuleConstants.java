@@ -14,6 +14,24 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.util.Units;
 
 public class ModuleConstants {
+    public enum ModuleName {
+        kFrontLeft("FrontLeft"),
+        kFrontRight("FrontRight"),
+        kRearLeft("RearLeft"),
+        kRearRight("RearRight");
+
+        private String loggableName;
+
+        private ModuleName(String loggableName) {
+            this.loggableName = loggableName;
+        }
+
+        public String getLoggableName() {
+            return "Drivetrain/Modules/" + loggableName;
+        }
+        
+    }
+
     // DRIVING MOTOR CONFIG (Kraken)
     public static final double kDrivingMotorReduction = (14.0 * 28.0 * 15.0) / (50 * 16 * 45);
 

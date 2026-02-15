@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -27,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.AutoConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.OIConstants;
+import frc.robot.constants.ModuleConstants.ModuleName;
 import frc.robot.utilities.SwerveModule;
 import frc.robot.utilities.Utilities;
 import frc.robot.utilities.VisualPose;
@@ -45,7 +48,7 @@ public class Drivetrain extends SubsystemBase {
 
     public Drivetrain(Pose2d startupPose) {
         frontLeft = new SwerveModule(
-            "FrontLeft", 
+            ModuleName.kFrontLeft, 
             DrivetrainConstants.kFrontLeftDrivingCANID, 
             DrivetrainConstants.kFrontLeftTurningCANID, 
             DrivetrainConstants.kFrontLeftAnalogInPort, 
@@ -53,7 +56,7 @@ public class Drivetrain extends SubsystemBase {
         );
 
         frontRight = new SwerveModule(
-            "FrontRight", 
+            ModuleName.kFrontRight, 
             DrivetrainConstants.kFrontRightDrivingCANID, 
             DrivetrainConstants.kFrontRightTurningCANID, 
             DrivetrainConstants.kFrontRightAnalogInPort, 
@@ -61,7 +64,7 @@ public class Drivetrain extends SubsystemBase {
         );
 
         rearLeft = new SwerveModule(
-            "RearLeft", 
+            ModuleName.kRearLeft, 
             DrivetrainConstants.kRearLeftDrivingCANID, 
             DrivetrainConstants.kRearLeftTurningCANID, 
             DrivetrainConstants.kRearLeftAnalogInPort, 
@@ -69,7 +72,7 @@ public class Drivetrain extends SubsystemBase {
         );
 
         rearRight = new SwerveModule(
-            "RearRight", 
+            ModuleName.kRearRight, 
             DrivetrainConstants.kRearRightDrivingCANID, 
             DrivetrainConstants.kRearRightTurningCANID, 
             DrivetrainConstants.kRearRightAnalogInPort, 
@@ -96,7 +99,9 @@ public class Drivetrain extends SubsystemBase {
                 rearLeft.getPosition(),
                 rearRight.getPosition()
             },
-            startupPose != null ? startupPose : new Pose2d()
+            startupPose != null ? startupPose : new Pose2d(),
+            DrivetrainConstants.kSensorFusionOdometryStdDevs,
+            DrivetrainConstants.kVisionOdometryStdDevs
         );
 
         if(AutoConstants.kAutoConfigOk) {
@@ -141,32 +146,32 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Drivetrain/Heading", getHeadingDegrees());
     }
 
-    public Command runFrontLeft(double staticSpeed, double staticAngleDegrees) {
+    /**
+     * Can be used to run an individual module on the drive base a static speed while maintaining a static angle.
+     * 
+     * Good for diagnosing issues with swerve module configuration. Essentially useless otherwise.
+     * 
+     * @param name The ModuleName enumeration that indicates which module you want to control
+     * @param staticSpeed The static speed in Meters Per Second to spin the drive wheel at
+     * @param staticAngleDegrees The static angle in degrees that you want the wheel to face
+     * @return A complete Command structure that performs the specified action
+     */
+    public Command runIndividualModule(ModuleName name, double staticSpeed, double staticAngleDegrees) {
+        SwerveModule module = List.of(
+            frontLeft,
+            frontRight,
+            rearLeft,
+            rearRight
+        ).stream()
+        .filter((m) -> m.getModuleName() == name)
+        .findFirst()
+        .get();
+
         return run(() -> {
-            frontLeft.setDesiredState(new SwerveModuleState(
+            module.setDesiredState(new SwerveModuleState(
                 staticSpeed, 
-                Rotation2d.fromDegrees(staticAngleDegrees)));
-        });
-    }
-    public Command runFrontRight(double staticSpeed, double staticAngleDegrees) {
-        return run(() -> {
-            frontRight.setDesiredState(new SwerveModuleState(
-                staticSpeed, 
-                Rotation2d.fromDegrees(staticAngleDegrees)));
-        });
-    }
-    public Command runRearLeft(double staticSpeed, double staticAngleDegrees) {
-        return run(() -> {
-            rearLeft.setDesiredState(new SwerveModuleState(
-                staticSpeed, 
-                Rotation2d.fromDegrees(staticAngleDegrees)));
-        });
-    }
-    public Command runRearRight(double staticSpeed, double staticAngleDegrees) {
-        return run(() -> {
-            rearRight.setDesiredState(new SwerveModuleState(
-                staticSpeed, 
-                Rotation2d.fromDegrees(staticAngleDegrees)));
+                Rotation2d.fromDegrees(staticAngleDegrees)
+            ));
         });
     }
 
@@ -235,12 +240,37 @@ public class Drivetrain extends SubsystemBase {
      * @return A complete Command structure that performs the specified action
      */
     public Command lockRotationToHub(DoubleSupplier xSpeed, DoubleSupplier ySpeed, boolean rotate180) {
+        return lockRotationToSuppliedPose(
+            Utilities::getHubPose, 
+            xSpeed, 
+            ySpeed, 
+            rotate180
+        );
+    }
+
+    /**
+     * Locks the robots rotation to face a particular pose on the field
+     * 
+     * This method is <i>NOT</i> for autonomous, see rotateToPose
+     * 
+     * This method provides a field oriented mechanism of driving the robot, such that the robot
+     * is always facing the point on the field that is the Pose2d object being supplied. This 
+     * method assumes that the robots estimated pose is reasonably accurate.
+     * 
+     * @param poseSupplier A Supplier object, lambda, or method reference which consistently produces a Pose2d object to point towards
+     * @param xSpeed The X (forward/backward) translational speed of the robot
+     * @param ySpeed The Y (left/right) translational speed of the robot
+     * @param rotate180 When false, the front of the robot faces the supplied pose, when true, the back
+     *   of the robot faces the supplied pose
+     * @return A complete Command structure that performs the specified action
+     */
+    public Command lockRotationToSuppliedPose(Supplier<Pose2d> poseSupplier, DoubleSupplier xSpeed, DoubleSupplier ySpeed, boolean rotate180) {
         return runOnce(yawRotationController::reset).andThen(
             drive(
                 xSpeed,
                 ySpeed, 
                 () -> {
-                    Pose2d faceTowards = Utilities.getHubPose();
+                    Pose2d faceTowards = poseSupplier.get();
 
                     Rotation2d targetRotation = new Rotation2d(
                         faceTowards.getX() - getPose().getX(), 

@@ -1,7 +1,11 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 public class DrivetrainConstants {
@@ -38,6 +42,11 @@ public class DrivetrainConstants {
     public static final double kHeadingP = .1;
     public static final double kXTranslationP = .5;
     public static final double kYTranslationP = .5;
+
+    // TODO How much do we trust gyro and encoders vs vision estimates.
+    // NOTE: Bigger values indicate LESS trust. Generally all three values for a given matrix should be the same
+    public static final Matrix<N3, N1> kSensorFusionOdometryStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
+    public static final Matrix<N3, N1> kVisionOdometryStdDevs = VecBuilder.fill(0.9, 0.9, 0.9);
 
     // YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS LINE UNLESS YOU'RE ADDING A NEW CONFIGURATION ITEM
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(

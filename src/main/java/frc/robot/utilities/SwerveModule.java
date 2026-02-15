@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import frc.robot.constants.ModuleConstants;
+import frc.robot.constants.ModuleConstants.ModuleName;
 
 /*
  * This thread
@@ -30,6 +31,8 @@ import frc.robot.constants.ModuleConstants;
  * the controller closed loop controller. 
  */
 public class SwerveModule {
+    private ModuleName moduleName;
+
     private TalonFX drive;
     private SparkMax turning;
 
@@ -40,8 +43,6 @@ public class SwerveModule {
     private SparkClosedLoopController turningClosedLoopController;
 
     private VelocityVoltage driveVelocityRequest;
-
-    private String moduleName;
 
     private SwerveModuleState lastTargetState;
     private SwerveModuleState lastTargetStateOptimized;
@@ -59,7 +60,7 @@ public class SwerveModule {
      * @param drivingCANID The CAN ID of the Kraken used to drive the module wheel
      * @param turningCANID The CAN ID of the Spark MAX used to turn the module wheel
      */
-    public SwerveModule(String moduleName, int drivingCANID, int turningCANID) {
+    public SwerveModule(ModuleName moduleName, int drivingCANID, int turningCANID) {
         this(moduleName, drivingCANID, turningCANID, -1, -1);
     }
 
@@ -73,7 +74,7 @@ public class SwerveModule {
      * @param analogEncoderID The Analog In port ID for the Thrify Absolute Encoder
      * @param analogEncoderOffset The angular offset for the absolute encoder to achieve 0 position on the module 
      */
-    public SwerveModule(String moduleName, int drivingCANID, int turningCANID, int analogEncoderID, double analogEncoderOffset) {
+    public SwerveModule(ModuleName moduleName, int drivingCANID, int turningCANID, int analogEncoderID, double analogEncoderOffset) {
         this(moduleName, drivingCANID, turningCANID, analogEncoderID, analogEncoderOffset, false);
     }
 
@@ -88,7 +89,7 @@ public class SwerveModule {
      * @param analogEncoderOffset The angular offset for the absolute encoder to achieve 0 position on the module 
      * @param turningEncoderAutoRezeroEnabled Should the turning encoder in the NEO automatically rezero from the absolute encoder
      */
-    public SwerveModule(String moduleName, int drivingCANID, int turningCANID, 
+    public SwerveModule(ModuleName moduleName, int drivingCANID, int turningCANID, 
         int analogEncoderID, double analogEncoderOffset, boolean turningEncoderAutoRezeroEnabled) {
         isAbsoluteEncoderDisabled = (analogEncoderID == -1) || (analogEncoderOffset < 0);
 
@@ -130,20 +131,20 @@ public class SwerveModule {
 
         this.turningEncoderAutoRezeroEnabled = turningEncoderAutoRezeroEnabled;
 
-        this.moduleName = "Drivetrain/Modules/" + moduleName;
+        this.moduleName = moduleName;
     }
 
     public void periodic() {
         
         if(!isAbsoluteEncoderDisabled) {
-            Logger.recordOutput(moduleName + "/AbsoluteEncoder/Position", turningAbsoluteEncoder.get());
+            Logger.recordOutput(moduleName.getLoggableName() + "/AbsoluteEncoder/Position", turningAbsoluteEncoder.get());
         }
         
-        Logger.recordOutput(moduleName + "/ModuleTargetState", lastTargetState);
-        Logger.recordOutput(moduleName + "/ModuleTargetStateOptimized", lastTargetStateOptimized);
-        Logger.recordOutput(moduleName + "/SwerveModuleState", getState());
-        Logger.recordOutput(moduleName + "/SwerveModulePosition", getPosition());
-        Logger.recordOutput(moduleName + "/RelativeEncoderPosition", getTurningEncoderPosition());
+        Logger.recordOutput(moduleName.getLoggableName() + "/ModuleTargetState", lastTargetState);
+        Logger.recordOutput(moduleName.getLoggableName() + "/ModuleTargetStateOptimized", lastTargetStateOptimized);
+        Logger.recordOutput(moduleName.getLoggableName() + "/SwerveModuleState", getState());
+        Logger.recordOutput(moduleName.getLoggableName() + "/SwerveModulePosition", getPosition());
+        Logger.recordOutput(moduleName.getLoggableName() + "/RelativeEncoderPosition", getTurningEncoderPosition());
 
         // TODO Re-enable this? Was turned off when there was drivetrain issues
         // Now that there aren't, do we try this again?
@@ -153,6 +154,10 @@ public class SwerveModule {
                 resetEncoders();
             }
         }*/
+    }
+
+    public ModuleName getModuleName() {
+        return moduleName;
     }
 
     public SwerveModuleState getState() {

@@ -134,6 +134,7 @@ public class PhotonVision extends SubsystemBase {
         // This is based on what PhotonVision does for multitag Pose estimation
         // See PhotonPoseEstimator.multiTagOnCoprocStrategy
         // TODO This doesn't currently account for the offset of the tag relative to say the hub
+        // unclear if that offset amount will be important or not
         return Optional.of(Pose3d.kZero
             .plus(bestCameraToTarget.inverse())
             .relativeTo(CompetitionConstants.kTagLayout.getOrigin())
