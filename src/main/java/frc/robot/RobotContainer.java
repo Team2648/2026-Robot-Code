@@ -6,11 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -52,6 +53,12 @@ public class RobotContainer {
         shooter = new Shooter();
 
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
+        vision.addPoseEstimateConsumer((vp) -> {
+            Logger.recordOutput(
+                "Vision/" + vp.cameraName() + "/Pose", 
+                vp.visualPose()
+            );
+        });
 
         driver = new CommandXboxController(OIConstants.kDriverControllerPort);
 
@@ -94,7 +101,7 @@ public class RobotContainer {
             Pose2d hubPose = Utilities.getHubPose();
 
             double distance = drivetrainPose.getTranslation()
-                .plus(CompetitionConstants.KRobotToShooter.getTranslation().toTranslation2d())
+                .plus(CompetitionConstants.kRobotToShooter.getTranslation().toTranslation2d())
                 .getDistance(hubPose.getTranslation());
                 
             if(HoodConstants.kUseInterpolatorForAngle) {
@@ -136,6 +143,31 @@ public class RobotContainer {
         }
     }
 
+    /**
+     * The "shift display" relies on Elastic's ability to show 1 or more colors
+     * in a box on the dashboard. 
+     * 
+     * Using the RobotModeTriggers and a Timer based on the FPGA, a reasonably
+     * accurate "shift display" can be created to indicate whose hub is active
+     * and when. 
+     * 
+     * During autonomous, and the first 10 seconds of teleop, the shift display
+     * will display a gradient of both red and blue, indicating the fact that 
+     * both hubs are active.
+     * 
+     * For the rest of teleop, with the exception of the endgame, the display
+     * will present either the color red, or the color blue, based on the returned
+     * value of Utilities.whoHasFirstShift(). Because shifts change on a known cycle,
+     * we can use the known state of who has first shift, to determine the remaining three shifts
+     * that come after.
+     * 
+     * For the endgame portion of teleop, the shift display returns to the gradient
+     * of both red and blue. 
+     * 
+     * Because this relies on the RobotModeTriggers and an FPGA timer, it should be 
+     * <i>reasonably</i> accurate, it's unlikely to be perfect relative to field time
+     * but it will be very very very (likely unnoticably) close. 
+     */
     private void configureShiftDisplay() {
         SmartDashboard.putStringArray(OIConstants.kCurrentActiveHub, OIConstants.kRedBlueDisplay);
         

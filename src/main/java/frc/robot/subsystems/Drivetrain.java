@@ -21,15 +21,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.AutoConstants;
-import frc.robot.constants.CompetitionConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.OIConstants;
 import frc.robot.utilities.SwerveModule;
+import frc.robot.utilities.Utilities;
 import frc.robot.utilities.VisualPose;
 
 public class Drivetrain extends SubsystemBase {
@@ -180,6 +179,19 @@ public class Drivetrain extends SubsystemBase {
         });  
     }
 
+    /**
+     * Rotates the robot to a face a given Pose2d position on the field
+     * 
+     * Note that this Command does not provide a means of timeout. If you are
+     * using this in an auto context, this Command should be decorated with 
+     * withTimeout(<some_value>). Otherwise, you will be waiting for the PID
+     * Controller doing the work to report that it is at the desired setpoint. 
+     * 
+     * @param targetPose The Pose2d object to rotate the robot towards
+     * @param rotate180 When false, the front of the robot faces the specified pose, when true
+     *   the back of the robot faces the specified pose
+     * @return A complete Command structure that performs the specified action
+     */
     public Command rotateToPose(Pose2d targetPose, boolean rotate180) {
         return runOnce(yawRotationController::reset).andThen(
             drive(
@@ -205,21 +217,30 @@ public class Drivetrain extends SubsystemBase {
             .until(yawRotationController::atSetpoint);
     }
 
+    /**
+     * Locks the robots rotation to face the Alliance Hub on the field. 
+     * 
+     * This method is innately aware of which hub to face based on the assigned alliance color.
+     * 
+     * This method is <i>NOT</i> for autonomous, see rotateToPose
+     * 
+     * This method provides a field oriented mechanism of driving the robot, such that the robot
+     * is always facing the point on the field that is the center of the alliance hub. This
+     * method assumes that the robots estimated pose is reasonably accurate. 
+     * 
+     * @param xSpeed The X (forward/backward) translational speed of the robot
+     * @param ySpeed The Y (left/right) translational speed of the robot
+     * @param rotate180 When false, the front of the robot faces the hub, when true, the back
+     *   of the robot faces the hub
+     * @return A complete Command structure that performs the specified action
+     */
     public Command lockRotationToHub(DoubleSupplier xSpeed, DoubleSupplier ySpeed, boolean rotate180) {
         return runOnce(yawRotationController::reset).andThen(
             drive(
                 xSpeed,
                 ySpeed, 
                 () -> {
-                    Optional<Alliance> alliance = DriverStation.getAlliance();
-
-                    if(alliance.isEmpty()) {
-                        return 0;
-                    }
-
-                    Pose2d faceTowards = alliance.get() == Alliance.Blue ?
-                        CompetitionConstants.kBlueHubLocation :
-                        CompetitionConstants.kRedHubLocation;
+                    Pose2d faceTowards = Utilities.getHubPose();
 
                     Rotation2d targetRotation = new Rotation2d(
                         faceTowards.getX() - getPose().getX(), 

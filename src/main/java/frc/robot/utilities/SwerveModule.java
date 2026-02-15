@@ -145,6 +145,8 @@ public class SwerveModule {
         Logger.recordOutput(moduleName + "/SwerveModulePosition", getPosition());
         Logger.recordOutput(moduleName + "/RelativeEncoderPosition", getTurningEncoderPosition());
 
+        // TODO Re-enable this? Was turned off when there was drivetrain issues
+        // Now that there aren't, do we try this again?
         /*
         if(!isAbsoluteEncoderDisabled && turningEncoderAutoRezeroEnabled) {
             if(Math.abs(getState().angle.getRadians() - lastTargetState.angle.getRadians()) <= ModuleConstants.kAutoResetPositionDeadband) {

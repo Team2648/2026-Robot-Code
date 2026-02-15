@@ -10,6 +10,13 @@ import frc.robot.constants.CompetitionConstants;
 public class Utilities {
     public static final double kG = -9.81;
     
+    /**
+     * Returns the Alliance enumeration that indicates who will have the first
+     * shift. Returns null if the data is not available. 
+     * 
+     * @return The Alliance that will have the first shift, or null if game specific data
+     *  is not present
+     */
     public static Alliance whoHasFirstShift() {
         String gameData = DriverStation.getGameSpecificMessage();
 
@@ -27,6 +34,13 @@ public class Utilities {
         return null;
     }
 
+    /**
+     * Returns the pose of the hub for the given alliance assigned to our robot.
+     * If no alliance is assigned (which is unlikely) this method returns
+     * the Blue hub pose, which is the closet to the field origin
+     * 
+     * @return The Pose2d object which represents the appropriate pose of the Hub
+     */
     public static Pose2d getHubPose() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
@@ -43,8 +57,6 @@ public class Utilities {
      * 
      * Note that X in this scenario is the physical distance from the shooter exit to 
      * target. Y is the change in height from the shooter exit to the target height
-     * 
-     * TODO Review ChatGPT's math more thoroughly, preferably with someone with fresher math skills
      * 
      * @param targetVMPS The target velocity of the shooter in Meters per Second
      * @param deltaXM The "as the crow flies" distance between the shooter exit and the target
@@ -65,8 +77,6 @@ public class Utilities {
      * 
      * Setting softerShot to true changes the angle of attack to a soft, long range shot. False
      * makes the shot more of a lob
-     * 
-     * TODO Review ChatGPT's math more thoroughly, preferably with someone with fresher math skills
      * 
      * @param targetVMPS The target velocity of the shooter in Meters per Second
      * @param deltaXM The "as the crow flies" distance between the shooter exit and the target
