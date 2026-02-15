@@ -181,9 +181,7 @@ public class SwerveModule {
 
     public void setDesiredState(SwerveModuleState desiredState) {
         lastTargetState = new SwerveModuleState(desiredState.speedMetersPerSecond, desiredState.angle);
-        // TODO is this really necessary, the offset is managed by the Absolute Encoder
-        // and its "source of truth" behavior in relation to the relative encoder
-        // Probably doesn't *hurt* that it's here, but it may not be needed
+        
         desiredState.optimize(new Rotation2d(getTurningEncoderPosition()));
 
         lastTargetStateOptimized = desiredState;
