@@ -26,11 +26,15 @@ import frc.robot.constants.CompetitionConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.OIConstants;
 import frc.robot.constants.ShooterConstants;
+import frc.robot.constants.IntakePivotConstants.IntakePivotPosition;
 import frc.robot.constants.ShooterConstants.ShooterSpeeds;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.IntakePivot;
+import frc.robot.subsystems.IntakeRoller;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Spindexer;
 import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
@@ -39,8 +43,12 @@ public class RobotContainer {
     private Drivetrain drivetrain;
     private Hood hood;
     private Shooter shooter;
+    private IntakePivot intakePivot;
+    private IntakeRoller intakeRoller;
+    private Spindexer spindexer;
 
     private CommandXboxController driver;
+    private CommandXboxController secondary;
 
     private SendableChooser<Command> autoChooser;
 
@@ -51,6 +59,9 @@ public class RobotContainer {
         drivetrain = new Drivetrain(null);
         hood = new Hood();
         shooter = new Shooter();
+        intakePivot = new IntakePivot();
+        intakeRoller = new IntakeRoller();
+        spindexer = new Spindexer();
 
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
@@ -61,6 +72,7 @@ public class RobotContainer {
         });
 
         driver = new CommandXboxController(OIConstants.kDriverControllerPort);
+        secondary = new CommandXboxController(OIConstants.kOperatorControllerPort);
 
         shiftTimer = new Timer();
         shiftTimer.reset();
@@ -72,6 +84,99 @@ public class RobotContainer {
             autoChooser = AutoBuilder.buildAutoChooser();
             configureNamedCommands();
         }
+    }
+
+    /**
+     * Before you @ mention me for terrible match controls, these are <i>TEST BINDINGS</i>
+     * 
+     * The are configured in such a way to make testing of multiple systems possible without
+     * having to constantly change bindings.
+     * 
+     * Most of the configurations here won't make sense for actual competition play. See
+     * {@link #configureBindings()} for actual competition play
+     * 
+     * The intent of each binding is outlined by comments above each binding. 
+     */
+    private void testConfigureBindings() {
+        // This should just work, if it doesn't it's likely modules aren't assigned the right IDs
+        // after the electronics rebuild. For testing normal operation nothing about the Drivetrain
+        // class should need to change
+        drivetrain.setDefaultCommand(
+            drivetrain.drive(
+                driver::getLeftY,
+                driver::getLeftX, 
+                driver::getRightX, 
+                () -> true
+            )
+        );
+
+        driver.a().whileTrue(
+            drivetrain.lockRotationToHub(
+                driver::getLeftY, 
+                driver::getLeftX, 
+                false
+            ) 
+        );
+
+        // Stop everything by default other than the drivetrain
+        shooter.setDefaultCommand(shooter.stop());
+        intakePivot.setDefaultCommand(intakePivot.stop());
+        intakeRoller.setDefaultCommand(intakeRoller.stop());
+        hood.setDefaultCommand(hood.stop());
+        spindexer.setDefaultCommand(spindexer.stop());
+
+        // While holding the right bumper of the driver controller, the intake rollers
+        // and the spindexer and feeder should move such that all motors are moving in such a way
+        // that it would draw balls from the floor, through the spindexer, and into the
+        // feeder. 
+        // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the 
+        // constants file for the subsystem having the problem
+        driver.rightBumper().whileTrue(
+            intakeRoller.runIn().alongWith(spindexer.spinToShooter())
+        );
+
+        // While holding the left bumper of the driver controller, the intake rollers
+        // and the spindexer and feeder should move such that all motors are moving in such a way
+        // that it would try to eject balls through the intake.
+        // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the 
+        // constants file for the subsystem having the problem
+        driver.leftBumper().whileTrue(
+            intakeRoller.runOut().alongWith(spindexer.spinToIntake())
+        );
+
+        // While holding D-Pad up on the secondary controller, the shooter should spin
+        // while holding down the secondary controllers right trigger some amount.
+        // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the
+        // constants file for the subsystem having the problem
+        secondary.povUp().whileTrue(
+            shooter.manualSpeed(secondary::getRightTriggerAxis)
+        );
+
+        // While holding D-Pad down on the seconadry controller, the intakePivot should move
+        // such that left trigger on the secondary controller moves the pivot down, and 
+        // right trigger on the secondary controller moves the pivot up.
+        // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the
+        // constants file for the subsystem having the problem
+        secondary.povDown().whileTrue(
+            intakePivot.manualSpeed(() -> {
+                return secondary.getLeftTriggerAxis() * -1 + secondary.getRightTriggerAxis();
+            })
+        );
+
+        // STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP
+        // Don't proceed unless you've verified by hand or with the above bindings, that sensing
+        // systems are providing correct values in the correct direction of rotation. 
+    
+
+        // Useful for testing PID and FF responses of the shooter
+        // You need to have graphs up of the logged data to make sure the response is correct
+        secondary.a().whileTrue(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed));
+        secondary.b().whileTrue(shooter.maintainSpeed(ShooterSpeeds.kFeedSpeed));
+
+        // Useful for testing PID and FF responses of the intake pivot
+        // You need to have graphs up of the logged data to make sure the response is correct
+        secondary.x().whileTrue(intakePivot.maintainPosition(IntakePivotPosition.kDown));
+        secondary.y().whileTrue(intakePivot.maintainPosition(IntakePivotPosition.kUp));
     }
   
     private void configureBindings() {
@@ -88,7 +193,7 @@ public class RobotContainer {
             drivetrain.lockRotationToHub(
                 driver::getLeftY, 
                 driver::getLeftX, 
-                false // TODO Should this be true by default?
+                false
             ) 
         );
 

@@ -24,7 +24,9 @@ public class IntakePivotConstants {
     public static final int kRightMotorCANID = 0;
 
     public static final double kConversionFactor = 0;
-    public static final double kMaxManualSpeedMultiplier = .5;
+
+    // Ultra conservative multiplier to prevent 1/8" lexan destruction, modify at your own peril
+    public static final double kMaxManualSpeedMultiplier = .3;
 
     public static final double kP = 0;
     public static final double kI = 0;
