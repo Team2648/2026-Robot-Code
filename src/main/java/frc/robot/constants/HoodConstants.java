@@ -1,10 +1,17 @@
 package frc.robot.constants;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.Filesystem;
 
 public class HoodConstants {
     // TODO Real Values
@@ -46,5 +53,28 @@ public class HoodConstants {
             .positionWrappingInputRange(0, Math.PI * 2)
             .feedForward
                 .sva(kS, kV, kA);
+
+
+        File interpolatorFile = Path.of(
+            Filesystem.getDeployDirectory().getAbsolutePath().toString(), 
+            "interpolatorData.csv"
+        ).toFile();
+
+        if(interpolatorFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(interpolatorFile))) {
+                reader.lines().forEach((s) -> {
+                    if(s.trim() != "") { //Empty or whitespace line protection
+                        String[] lineSplit = s.split(",");
+
+                        kDistanceToAngle.put(
+                            Double.valueOf(lineSplit[0].replace("\"", "")), 
+                            Double.valueOf(lineSplit[1].replace("\"", ""))
+                        );
+                    }
+                });
+            } catch (IOException e) {
+                // This condition is never reached because of the if exists line above
+            }
+        }
     }
 }

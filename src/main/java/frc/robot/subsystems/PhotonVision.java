@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.Consumer;
 
 import org.photonvision.EstimatedRobotPose;
@@ -138,8 +139,51 @@ public class PhotonVision extends SubsystemBase {
         return Optional.of(Pose3d.kZero
             .plus(bestCameraToTarget.inverse())
             .relativeTo(CompetitionConstants.kTagLayout.getOrigin())
-            .plus(config.robotToCamera().inverse())
-            .plus(CompetitionConstants.kRobotToShooter));
+            .plus(config.robotToCamera().inverse()));
+    }
+
+    /**
+     * Returns the best yaw for a given AprilTag ID as seen by the cameras on the robot.
+     * 
+     * All cameras fields of view are observed, if no camera can see the given tag ID, this
+     * method will return OptionalDouble.empty()
+     * 
+     * Note that this method has no minimum confidence threshold for a tag. This means that
+     * if one camera thinks it sees the tag, even with very low confidence, it'll still
+     * return some sort of yaw value.
+     * 
+     * Note that the yaw value here is the yaw of the observed tag relative to the center
+     * of the cameras image frame. 
+     * 
+     * @param tagID The ID of the tag to look for in the latest results from all cameras
+     * @return An OptionalDouble object containing a Double representing the described yaw
+     *   of the AprilTag specified, or OptionalDouble.empty() if the tag is not present
+     *   anywhere in the robots field of view
+     */
+    public OptionalDouble getBestYawForTag(int tagID) {
+        double bestTagYaw = -1;
+        float bestConfidence = -1;
+
+        for(PhotonPipelineResult result: latestResults) {
+            if(result == null) {
+                continue;
+            }
+
+            for(PhotonTrackedTarget target: result.getTargets()) {
+                if(target.getFiducialId() != tagID || bestConfidence > target.getDetectedObjectClassID()) {
+                    continue;
+                }
+
+                bestTagYaw = target.getYaw();
+                bestConfidence = target.getDetectedObjectConfidence();
+            }
+        }
+
+        if(bestConfidence == -1) {
+            return OptionalDouble.empty();
+        }
+
+        return OptionalDouble.of(bestTagYaw);
     }
 
     /**
@@ -158,103 +202,4 @@ public class PhotonVision extends SubsystemBase {
     public void addPoseEstimateConsumer(Consumer<VisualPose> consumer) {
         poseEstimateConsumers.add(consumer);
     }
-
-    /*public Trigger tagPrescenseTrigger(int targetTag) {
-        return new Trigger(() -> {
-            return List.of(latestResults).stream()
-                .filter((p) -> p != null)
-                .anyMatch((p) -> {
-                    return p.getTargets().stream().map(PhotonTrackedTarget::getFiducialId).anyMatch((i) -> {
-                        return i == targetTag;
-                    });
-                });
-            });
-    }*/
-/* 
-    @Override
-    public OptionalDouble getTagDistanceFromCameraByID(int id) {
-        if (latestResult == null) {
-            return OptionalDouble.empty();
-        }
-
-        if (!latestResult.hasTargets()) {
-            return OptionalDouble.empty();
-        }
-
-        Optional<PhotonTrackedTarget> desiredTarget = getTargetFromList(latestResult.getTargets(), id);
-        
-        if (desiredTarget.isEmpty()) {
-            return OptionalDouble.empty();
-        }
-
-        return OptionalDouble.of(
-            PhotonUtils.calculateDistanceToTargetMeters(
-                cameraHeightMeters, 
-                CompetitionConstants.kTagLayout.getTagPose(id).get().getZ(),
-                cameraPitchRadians, 
-                Units.degreesToRadians(desiredTarget.get().getPitch()))
-        );
-    }
-
-    @Override
-    public OptionalDouble getTagPitchByID(int id) {
-        if(latestResult == null) {
-            OptionalDouble.empty();
-        }
-        
-        if (!latestResult.hasTargets()) {
-            return OptionalDouble.empty();
-        }
-
-        Optional<PhotonTrackedTarget> desiredTarget = getTargetFromList(latestResult.getTargets(), id);
-
-        if (desiredTarget.isEmpty()) {
-            return OptionalDouble.empty();
-        }
-
-        return OptionalDouble.of(
-            desiredTarget.get().getPitch()
-        );
-    }
-
-    @Override
-    public OptionalDouble getTagYawByID(int id) {
-        if(latestResult == null) {
-            OptionalDouble.empty();
-        }
-        
-        if (!latestResult.hasTargets()) {
-            return OptionalDouble.empty();
-        }
-
-        Optional<PhotonTrackedTarget> desiredTarget = getTargetFromList(latestResult.getTargets(), id);
-
-        if (desiredTarget.isEmpty()) {
-            return OptionalDouble.empty();
-        }
-
-        return OptionalDouble.of(
-            desiredTarget.get().getYaw()
-        );
-    }
-
-    private Optional<PhotonTrackedTarget> getTargetFromList(List<PhotonTrackedTarget> targets, int id) {
-        for (PhotonTrackedTarget target : targets) {
-            if (target.getFiducialId() == id) {
-                return Optional.of(target);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
-    public int[] getVisibleTagIDs() {
-        if(latestResult == null) {
-            return new int[] {};
-        }
-
-        return latestResult.getTargets().stream().mapToInt(PhotonTrackedTarget::getFiducialId).toArray();
-    }
-    */
 }

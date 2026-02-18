@@ -198,27 +198,7 @@ public class Drivetrain extends SubsystemBase {
      * @return A complete Command structure that performs the specified action
      */
     public Command rotateToPose(Pose2d targetPose, boolean rotate180) {
-        return runOnce(yawRotationController::reset).andThen(
-            drive(
-                () -> 0,
-                () -> 0, 
-                () -> {
-                    Rotation2d targetRotation = new Rotation2d(
-                        targetPose.getX() - getPose().getX(), 
-                        targetPose.getY() - getPose().getY()
-                    );
-
-                    if(rotate180) {
-                        targetRotation = targetRotation.rotateBy(Rotation2d.k180deg);
-                    }
-
-                    return yawRotationController.calculate(
-                        getHeading().getRadians(),
-                        targetRotation.getRadians()
-                    );
-                }, 
-                () -> true
-            ))
+        return lockRotationToSuppliedPose(() -> targetPose, () -> 0, () -> 0, rotate180)
             .until(yawRotationController::atSetpoint);
     }
 
@@ -291,32 +271,27 @@ public class Drivetrain extends SubsystemBase {
         );
     }
 
-    // TODO check both cameras
-    /*public Command driveAprilTagLock(DoubleSupplier xSpeed, DoubleSupplier ySpeed, double deadband, int tagID) {
-        if (camera1 == null) {
-            return new PrintCommand("Camera 1 not available");
-        }
-
-        // TODO The process variable is different here than what these constants are used for, may need to use something different
-        PIDController controller = new PIDController(
-            AutoConstants.kPThetaController, 
-            0, 
-            0
-        );
-
-        return runOnce(controller::reset).andThen(
+    /**
+     * A method to lock to a particular source of an external "yaw". The intent is for this yaw to be sourced from
+     * {@link frc.robot.subsystems.PhotonVision#getBestYawForTag(int)} which generates a "yaw" for a particular tag as referenced
+     * from the center point of the cameras image frame. The objective being to "0 the source" using a PID Controller, or in
+     * other terms, to center the provided tag in the camera's image frame.
+     * 
+     * @param yaw The "yaw" of the tag source relative to the center of the image frame
+     * @param xSpeed The X (forward/backward) translational speed of the robot
+     * @param ySpeed The Y (left/right) translational speed of the robot
+     * @return A complete Command structure that performs the specified action
+     */
+    public Command lockToYaw(DoubleSupplier yaw, DoubleSupplier xSpeed, DoubleSupplier ySpeed) {
+        return runOnce(yawRotationController::reset).andThen(
             drive(
-                xSpeed, 
+                xSpeed,
                 ySpeed, 
-                () -> {
-                    OptionalDouble tagYaw = camera1.getTagYawByID(tagID);
-
-                    return (tagYaw.isEmpty() ? 0 : controller.calculate(tagYaw.getAsDouble(), 0));
-                },
-                () -> false
-           )
+                () -> yawRotationController.calculate(yaw.getAsDouble(), 0),
+                () -> true
+            )
         );
-    }*/
+    }
 
     public Command drivePathPlannerPath(PathPlannerPath path) {
         if(AutoConstants.kAutoConfigOk) {
