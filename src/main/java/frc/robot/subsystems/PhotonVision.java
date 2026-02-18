@@ -193,11 +193,11 @@ public class PhotonVision extends SubsystemBase {
      * VisualPose. 
      * 
      * The number of Poses produced in a given 20ms cycle is the same number as how many
-     * cameras there are on the robot, as currently all cameras configuration will generate
-     * a Pose2d
+     * cameras there are on the robot, assuming those cameras see enough tags to generate a pose, 
+     * as currently all cameras configuration will generate a Pose2d
      * 
-     * @param consumer The lambda or functional reference that will consume Poses produced
-     *   by the PhotonVision resource.
+     * @param consumer The lambda, functional reference, or Consumer implementing object 
+     *  that will consume Poses produced by the PhotonVision resource.
      */
     public void addPoseEstimateConsumer(Consumer<VisualPose> consumer) {
         poseEstimateConsumers.add(consumer);

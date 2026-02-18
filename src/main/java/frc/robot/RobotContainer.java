@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+import java.util.OptionalDouble;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -110,12 +112,29 @@ public class RobotContainer {
             )
         );
 
+        // This needs to be tested after a prolonged amount of driving around <i>aggressively</i>.
+        // Do things like going over the bump repeatedly, spin around a bunch, etc. 
+        // If this works well over time, then this is likely all we need
         driver.a().whileTrue(
             drivetrain.lockRotationToHub(
                 driver::getLeftY, 
                 driver::getLeftX, 
                 false
             ) 
+        );
+
+        // This can be tested as an alternative to the above, it's less dynamic, but is a simpler
+        // alternative. 
+        driver.b().whileTrue(
+            drivetrain.lockToYaw(
+                () -> {
+                    OptionalDouble maybeYaw = vision.getBestYawForTag(Utilities.getHubCenterAprilTagID());
+
+                    return maybeYaw.isEmpty() ? 0 : maybeYaw.getAsDouble();
+                }, 
+                driver::getLeftY, 
+                driver::getLeftX
+            )
         );
 
         // Stop everything by default other than the drivetrain
@@ -163,6 +182,17 @@ public class RobotContainer {
             })
         );
 
+        // While holding D-Pad left on the secondary controller, the hood should move
+        // such that the left trigger on the secondary controller moves the hood down, and
+        // right trigger on the secondary controller moves the hood up.
+        // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the 
+        // constants file for the subsystem having the problem
+        secondary.povLeft().whileTrue(
+            hood.manualSpeed(() -> {
+                return secondary.getLeftTriggerAxis() * -1 + secondary.getRightTriggerAxis();
+            })
+        );
+
         // STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP
         // Don't proceed unless you've verified by hand or with the above bindings, that sensing
         // systems are providing correct values in the correct direction of rotation. 
@@ -177,6 +207,8 @@ public class RobotContainer {
         // You need to have graphs up of the logged data to make sure the response is correct
         secondary.x().whileTrue(intakePivot.maintainPosition(IntakePivotPosition.kDown));
         secondary.y().whileTrue(intakePivot.maintainPosition(IntakePivotPosition.kUp));
+
+        // TODO Some means of testing hood PIDF
     }
   
     private void configureBindings() {
@@ -195,6 +227,18 @@ public class RobotContainer {
                 driver::getLeftX, 
                 false
             ) 
+        );
+
+        driver.b().whileTrue(
+            drivetrain.lockToYaw(
+                () -> {
+                    OptionalDouble maybeYaw = vision.getBestYawForTag(Utilities.getHubCenterAprilTagID());
+
+                    return maybeYaw.isEmpty() ? 0 : maybeYaw.getAsDouble();
+                }, 
+                driver::getLeftY, 
+                driver::getLeftX
+            )
         );
 
         shooter.setDefaultCommand(

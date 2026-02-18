@@ -52,6 +52,23 @@ public class Utilities {
     }
 
     /**
+     * Returns the AprilTag ID of the tag that is in the center of the hub
+     * for the robot's assigned alliance. If no alliance is assigned (which is unlikely)
+     * the Blue hub's center tag is returned. 
+     * 
+     * @return The tag ID that is in the center of the assigned alliance's hub
+     */
+    public static int getHubCenterAprilTagID() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+
+        if(alliance.isEmpty() || alliance.get() == Alliance.Blue) {
+            return 26;
+        } else {
+            return 10;
+        }
+    }
+
+    /**
      * A ChatGPT possible hallucination related to calcuating whether a shot is possible
      * for a given speed and change in X and Y position
      * 
