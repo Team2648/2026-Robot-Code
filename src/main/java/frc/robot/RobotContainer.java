@@ -30,6 +30,7 @@ import frc.robot.constants.OIConstants;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.IntakePivotConstants.IntakePivotPosition;
 import frc.robot.constants.ShooterConstants.ShooterSpeeds;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.IntakePivot;
@@ -48,6 +49,7 @@ public class RobotContainer {
     private IntakePivot intakePivot;
     private IntakeRoller intakeRoller;
     private Spindexer spindexer;
+    private Climber climber;
 
     private CommandXboxController driver;
     private CommandXboxController secondary;
@@ -64,6 +66,7 @@ public class RobotContainer {
         intakePivot = new IntakePivot();
         intakeRoller = new IntakeRoller();
         spindexer = new Spindexer();
+        climber = new Climber();
 
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
@@ -143,6 +146,17 @@ public class RobotContainer {
         intakeRoller.setDefaultCommand(intakeRoller.stop());
         hood.setDefaultCommand(hood.stop());
         spindexer.setDefaultCommand(spindexer.stop());
+        climber.setDefaultCommand(climber.stop());
+
+        // While holding POV up of the driver controller, the climber
+        // should move such that its motor moves the climber down with the left
+        // driver controller trigger axis, and up with the right driver controller
+        // trigger axis.
+        // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted
+        // from the constants file for the subsystem having the problem. 
+        driver.povUp().whileTrue(climber.manualSpeed(() -> {
+            return driver.getLeftTriggerAxis() * -1 + driver.getRightTriggerAxis();
+        }));
 
         // While holding the right bumper of the driver controller, the intake rollers
         // and the spindexer and feeder should move such that all motors are moving in such a way
@@ -209,6 +223,7 @@ public class RobotContainer {
         secondary.y().whileTrue(intakePivot.maintainPosition(IntakePivotPosition.kUp));
 
         // TODO Some means of testing hood PIDF
+        // TODO Some means of testing climber PIDF
     }
   
     private void configureBindings() {
