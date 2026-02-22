@@ -82,12 +82,39 @@ public class Hood extends SubsystemBase {
         });
     }
 
+    /**
+     * An automated form of resetting the hood position sensing.
+     * 
+     * Run down at the full manual speed (note that this is affected by the 
+     * kMaxManualSpeedMultiplier constant) until the timer trigger becomes true
+     * (i.e. the output current has been above the threshold (kAmpsToTriggerPositionReset) 
+     * for reset for the amount of specified by kTimeAboveThresholdToReset). Once
+     * that returns true, the motor is stopped until the timer trigger switches to false
+     * (i.e. it has reset the position automatically, because that's how it's configured, 
+     * and resets the timer to 0, which makes the timer trigger false)
+     * 
+     * @return A complete Command structure that performs the specified action
+     */
     public Command automatedRezero() {
         return manualSpeed(() -> -1)
             .until(timerTrigger)
             .andThen(
                 stop().until(timerTrigger.negate())
         );
+    }
+
+    /**
+     * An alternate form of {@link #automatedRezero()} that doesn't rely on the triggers
+     * to reset the hood position to zero. Note that this method doesn't have any time limiting
+     * factor to it, as soon as the current goes above the threshold specified by 
+     * kAmpsToTriggerPositionReset the encoder position will be set to zero
+     * 
+     * @return A complete Command structure that performs the specified action
+     */
+    public Command automatedRezeroNoTimer() {
+        return manualSpeed(() -> -1)
+            .until(() -> motor.getOutputCurrent() >= HoodConstants.kAmpsToTriggerPositionReset)
+            .andThen(new InstantCommand(() -> encoder.setPosition(0)));
     }
 
     public Command manualSpeed(DoubleSupplier speed) {
