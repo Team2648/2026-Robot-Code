@@ -17,6 +17,8 @@ public class HoodConstants {
     // TODO Real Values
     public static final int kMotorCANID = 0;
 
+    public static final double kConversionFactor = 0;
+
     public static final double kP = 0;
     public static final double kI = 0;
     public static final double kD = 0;
@@ -25,6 +27,12 @@ public class HoodConstants {
     public static final double kA = 0;
     public static final double kStartupAngle = 0;
     public static final double kMaxManualSpeedMultiplier = .5;
+
+    public static final double kAmpsToTriggerPositionReset = 10;
+
+    // TODO This is just barely longer than the default frame time for output current information
+    // Should this be longer?
+    public static final double kTimeAboveThresholdToReset = .25;
 
     public static final int kCurrentLimit = 15;
 
@@ -45,12 +53,13 @@ public class HoodConstants {
             .idleMode(kIdleMode)
             .inverted(kInverted)
             .smartCurrentLimit(kCurrentLimit);
+        kConfig.encoder
+            .positionConversionFactor(kConversionFactor)
+            .velocityConversionFactor(kConversionFactor / 60);
         kConfig.closedLoop
-            .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(kP, kI, kD)
             .outputRange(-1, 1)
-            .positionWrappingEnabled(true)
-            .positionWrappingInputRange(0, Math.PI * 2)
             .feedForward
                 .sva(kS, kV, kA);
 
