@@ -68,6 +68,7 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void periodic() {
+        Logger.recordOutput("Hood/OutputCurrent", motor.getOutputCurrent());
         Logger.recordOutput("Hood/CurrentTarget", currentTargetDegrees);
         Logger.recordOutput("Hood/CurrentAngle", encoder.getPosition());
         Logger.recordOutput("Hood/AtSetpoint", controller.isAtSetpoint());
@@ -79,6 +80,14 @@ public class Hood extends SubsystemBase {
 
             controller.setSetpoint(currentTargetDegrees, ControlType.kPosition);
         });
+    }
+
+    public Command automatedRezero() {
+        return manualSpeed(() -> -1)
+            .until(timerTrigger)
+            .andThen(
+                stop().until(timerTrigger.negate())
+        );
     }
 
     public Command manualSpeed(DoubleSupplier speed) {
