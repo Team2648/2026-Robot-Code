@@ -14,7 +14,7 @@ import edu.wpi.first.math.util.Units;
 
 // TODO This is all hold over from 2025, does any of it need to change?
 public class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 5;
+    public static final double kMaxSpeedMetersPerSecond = 4;
     public static final double kMaxAccelerationMetersPerSecondSquared = 4;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI;

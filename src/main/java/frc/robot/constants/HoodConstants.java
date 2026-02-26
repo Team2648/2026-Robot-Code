@@ -17,7 +17,7 @@ public class HoodConstants {
     // TODO Real Values
     public static final int kMotorCANID = 0;
 
-    public static final double kConversionFactor = 0;
+    public static final double kConversionFactor = 3.0*147.0/8.0;
 
     public static final double kP = 0;
     public static final double kI = 0;

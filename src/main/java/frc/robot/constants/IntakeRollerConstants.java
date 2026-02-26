@@ -8,7 +8,7 @@ public class IntakeRollerConstants {
     public static final int kLeftMotorCANID = 0;
     public static final int kRightMotorCANID = 0;
 
-    public static final int kCurrentLimit = 30;
+    public static final int kCurrentLimit = 40;
 
     public static final boolean kInvertMotors = false;
 

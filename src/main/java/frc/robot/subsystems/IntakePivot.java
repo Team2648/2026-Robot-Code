@@ -5,8 +5,8 @@ import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -22,7 +22,7 @@ public class IntakePivot extends SubsystemBase {
     private SparkMax leftMotor;
     private SparkMax rightMotor;
 
-    private AbsoluteEncoder encoder;
+    private RelativeEncoder encoder;
 
     private SparkClosedLoopController controller;
 
@@ -46,7 +46,8 @@ public class IntakePivot extends SubsystemBase {
 
         controller = leftMotor.getClosedLoopController();
 
-        encoder = leftMotor.getAbsoluteEncoder();
+        encoder = leftMotor.getEncoder();
+        encoder.setPosition(IntakePivotConstants.IntakePivotPosition.kUp.getPositionRadians());
     }
 
     @Override

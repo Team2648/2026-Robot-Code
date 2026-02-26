@@ -9,8 +9,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 public class DrivetrainConstants {
-    // TODO Hold over from 2025, adjust?
-    public static final double kMaxSpeedMetersPerSecond = 4.125;
+    public static final double kMaxSpeedMetersPerSecond = 4.663;
     public static final double kMaxAngularSpeed = 2 * Math.PI;
 
     public static final double kTrackWidth = Units.inchesToMeters(23.75);

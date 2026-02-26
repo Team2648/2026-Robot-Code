@@ -12,9 +12,9 @@ public class SpindexerConstants {
     public static final int kSpindexerMotorCANID = 0;
     public static final int kFeederMotorCANID = 0;
 
-    public static final int kSpindexerStatorCurrentLimit = 80;
-    public static final int kSpindexerSupplyCurrentLimit = 30;
-    public static final int kFeederCurrentLimit = 30;
+    public static final int kSpindexerStatorCurrentLimit = 90;
+    public static final int kSpindexerSupplyCurrentLimit = 50;
+    public static final int kFeederCurrentLimit = 40;
 
     public static final boolean kFeederMotorInverted = false;
 

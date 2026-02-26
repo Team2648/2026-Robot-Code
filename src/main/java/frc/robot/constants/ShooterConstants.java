@@ -24,7 +24,7 @@ public class ShooterConstants {
 
     // TODO Conversion factor?
 
-    public static final double kWheelDiameter = Units.inchesToMeters(6);
+    public static final double kWheelDiameter = Units.inchesToMeters(4);
 
     // TODO Real values
     public static final int kLeftShooterMotor1CANID = 0;
@@ -41,20 +41,20 @@ public class ShooterConstants {
     public static final double kLeftI = 0;
     public static final double kLeftD = 0;
     public static final double kLeftS = 0;
-    public static final double kLeftV = 0;
+    public static final double kLeftV = 0.21;
     public static final double kLeftA = 0;
 
     public static final double kRightP = 0;
     public static final double kRightI = 0;
     public static final double kRightD = 0;
     public static final double kRightS = 0;
-    public static final double kRightV = 0;
+    public static final double kRightV = 0.21;
     public static final double kRightA = 0;
 
     public static final double kShooterHeightMeters = 0;
 
     // TODO Is this value sane?
-    public static final int kCurrentLimit = 30;
+    public static final int kCurrentLimit = 50;
 
     public static final IdleMode kShooterIdleMode = IdleMode.kCoast;
 

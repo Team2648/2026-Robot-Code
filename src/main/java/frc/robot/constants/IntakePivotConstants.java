@@ -7,8 +7,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 public class IntakePivotConstants {
     // TODO Real values
     public enum IntakePivotPosition {
-        kUp(0),
-        kDown(0);
+        kUp(Math.toRadians(116.0)),
+        kDown(Math.toRadians(0.0));
         private double positionRadians;
 
         private IntakePivotPosition(double positionRadians) {
@@ -23,7 +23,7 @@ public class IntakePivotConstants {
     public static final int kLeftMotorCANID = 0;
     public static final int kRightMotorCANID = 0;
 
-    public static final double kConversionFactor = 0;
+    public static final double kConversionFactor = 60.0/11.0*60.0/18.0*38.0/16.0;
 
     // Ultra conservative multiplier to prevent 1/8" lexan destruction, modify at your own peril
     public static final double kMaxManualSpeedMultiplier = .3;
@@ -32,8 +32,9 @@ public class IntakePivotConstants {
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kS = 0;
-    public static final double kV = 0;
-    public static final double kA = 0;
+    public static final double kV = 5.26;
+    public static final double kA = 0.05;
+    public static final double kG = 0.25;
 
     public static final boolean kInvertMotors = false;
 
@@ -51,17 +52,17 @@ public class IntakePivotConstants {
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
             .inverted(kInvertMotors);
-        KLeftMotorConfig.absoluteEncoder
+        KLeftMotorConfig.encoder
             .positionConversionFactor(kConversionFactor)
             .velocityConversionFactor(kConversionFactor / 60);
         KLeftMotorConfig.closedLoop
-            .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(kP, kI, kD)
             .outputRange(-1, 1)
             .positionWrappingEnabled(true)
             .positionWrappingInputRange(0, 2 * Math.PI)
             .feedForward
-                .sva(kS, kV, kA);
+                .svag(kS, kV, kA, kG);
 
         kRightMotorConfig
             .idleMode(kIdleMode)
