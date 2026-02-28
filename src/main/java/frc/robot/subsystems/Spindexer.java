@@ -37,15 +37,19 @@ public class Spindexer extends SubsystemBase {
 
     public Command spinToShooter() {
         return run(() -> {
-            spindexerMotor.setControl(spindexerMotorOutput.withOutput(1));
-            feederMotor.set(1);
+            spindexerMotor.setControl(
+                spindexerMotorOutput.withOutput(SpindexerConstants.kSpindexerSpeed)
+            );
+            feederMotor.set(SpindexerConstants.kFeederSpeed);
         });
     }
 
     public Command spinToIntake() {
         return run(() -> {
-            spindexerMotor.setControl(spindexerMotorOutput.withOutput(-1));
-            feederMotor.set(-1);
+            spindexerMotor.setControl(
+                spindexerMotorOutput.withOutput(-SpindexerConstants.kSpindexerSpeed)
+            );
+            feederMotor.set(-SpindexerConstants.kFeederSpeed);
         });
     }
 

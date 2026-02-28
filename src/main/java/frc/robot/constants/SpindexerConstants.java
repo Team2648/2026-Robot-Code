@@ -10,16 +10,19 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 public class SpindexerConstants {
     // TODO Real values
     public static final int kSpindexerMotorCANID = 0;
-    public static final int kFeederMotorCANID = 0;
+    public static final int kFeederMotorCANID = 4;
 
-    public static final int kSpindexerStatorCurrentLimit = 90;
-    public static final int kSpindexerSupplyCurrentLimit = 50;
+    public static final int kSpindexerStatorCurrentLimit = 110;
+    public static final int kSpindexerSupplyCurrentLimit = 60;
     public static final int kFeederCurrentLimit = 40;
 
-    public static final boolean kFeederMotorInverted = false;
+    public static final double kSpindexerSpeed = 1;
+    public static final double kFeederSpeed = 1;
+
+    public static final boolean kFeederMotorInverted = true;
 
     public static final InvertedValue kSpindexerInversionState = InvertedValue.Clockwise_Positive;
-    public static final NeutralModeValue kSpindexerIdleMode = NeutralModeValue.Brake;
+    public static final NeutralModeValue kSpindexerIdleMode = NeutralModeValue.Coast;
 
     public static final IdleMode kFeederIdleMode = IdleMode.kBrake;
 

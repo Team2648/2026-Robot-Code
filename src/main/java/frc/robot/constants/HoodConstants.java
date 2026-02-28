@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 
 public class HoodConstants {
     // TODO Real Values
-    public static final int kMotorCANID = 0;
+    public static final int kMotorCANID = 12;
 
     public static final double kConversionFactor = 3.0*147.0/8.0;
 
@@ -26,7 +26,7 @@ public class HoodConstants {
     public static final double kV = 0;
     public static final double kA = 0;
     public static final double kStartupAngle = 0;
-    public static final double kMaxManualSpeedMultiplier = .5;
+    public static final double kMaxManualSpeedMultiplier = 1;
 
     public static final double kAmpsToTriggerPositionReset = 10;
 

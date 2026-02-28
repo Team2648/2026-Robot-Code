@@ -42,14 +42,14 @@ import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
-    private PhotonVision vision;
+    //private PhotonVision vision;
     private Drivetrain drivetrain;
     private Hood hood;
     private Shooter shooter;
     private IntakePivot intakePivot;
     private IntakeRoller intakeRoller;
     private Spindexer spindexer;
-    private Climber climber;
+    //private Climber climber;
 
     private CommandXboxController driver;
     private CommandXboxController secondary;
@@ -59,22 +59,23 @@ public class RobotContainer {
     private Timer shiftTimer;
 
     public RobotContainer() {
-        vision = new PhotonVision();
+        //vision = new PhotonVision();
         drivetrain = new Drivetrain(null);
         hood = new Hood();
         shooter = new Shooter();
         intakePivot = new IntakePivot();
         intakeRoller = new IntakeRoller();
         spindexer = new Spindexer();
-        climber = new Climber();
+        //climber = new Climber();
 
+        /*
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
             Logger.recordOutput(
                 "Vision/" + vp.cameraName() + "/Pose", 
                 vp.visualPose()
             );
-        });
+        });*/
 
         driver = new CommandXboxController(OIConstants.kDriverControllerPort);
         secondary = new CommandXboxController(OIConstants.kOperatorControllerPort);
@@ -82,7 +83,8 @@ public class RobotContainer {
         shiftTimer = new Timer();
         shiftTimer.reset();
 
-        configureBindings();
+        //configureBindings();
+        testConfigureBindings();
         configureShiftDisplay();
 
         if(AutoConstants.kAutoConfigOk) {
@@ -106,7 +108,8 @@ public class RobotContainer {
         // This should just work, if it doesn't it's likely modules aren't assigned the right IDs
         // after the electronics rebuild. For testing normal operation nothing about the Drivetrain
         // class should need to change
-        drivetrain.setDefaultCommand(
+        drivetrain.setDefaultCommand(drivetrain.drive(() -> 0, () -> 0, () -> 0, () -> true));
+        /*drivetrain.setDefaultCommand(
             drivetrain.drive(
                 driver::getLeftY,
                 driver::getLeftX, 
@@ -138,7 +141,7 @@ public class RobotContainer {
                 driver::getLeftY, 
                 driver::getLeftX
             )
-        );
+        );*/
 
         // Stop everything by default other than the drivetrain
         shooter.setDefaultCommand(shooter.stop());
@@ -146,7 +149,7 @@ public class RobotContainer {
         intakeRoller.setDefaultCommand(intakeRoller.stop());
         hood.setDefaultCommand(hood.stop());
         spindexer.setDefaultCommand(spindexer.stop());
-        climber.setDefaultCommand(climber.stop());
+        //climber.setDefaultCommand(climber.stop());
 
         // While holding POV up of the driver controller, the climber
         // should move such that its motor moves the climber down with the left
@@ -154,9 +157,9 @@ public class RobotContainer {
         // trigger axis.
         // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted
         // from the constants file for the subsystem having the problem. 
-        driver.povUp().whileTrue(climber.manualSpeed(() -> {
-            return driver.getLeftTriggerAxis() * -1 + driver.getRightTriggerAxis();
-        }));
+        //driver.povUp().whileTrue(climber.manualSpeed(() -> {
+        //    return driver.getLeftTriggerAxis() * -1 + driver.getRightTriggerAxis();
+        //}));
 
         // While holding the right bumper of the driver controller, the intake rollers
         // and the spindexer and feeder should move such that all motors are moving in such a way
@@ -165,7 +168,8 @@ public class RobotContainer {
         // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the 
         // constants file for the subsystem having the problem
         driver.rightBumper().whileTrue(
-            intakeRoller.runIn().alongWith(spindexer.spinToShooter())
+            //intakeRoller.runIn().alongWith(spindexer.spinToShooter())
+            spindexer.spinToShooter()
         );
 
         // While holding the left bumper of the driver controller, the intake rollers
@@ -244,6 +248,7 @@ public class RobotContainer {
             ) 
         );
 
+        /*
         driver.b().whileTrue(
             drivetrain.lockToYaw(
                 () -> {
@@ -254,7 +259,7 @@ public class RobotContainer {
                 driver::getLeftY, 
                 driver::getLeftX
             )
-        );
+        );*/
 
         shooter.setDefaultCommand(
             shooter.maintainSpeed(ShooterSpeeds.kHubSpeed)

@@ -20,8 +20,8 @@ public class IntakePivotConstants {
         }
     }
 
-    public static final int kLeftMotorCANID = 0;
-    public static final int kRightMotorCANID = 0;
+    public static final int kLeftMotorCANID = 16;
+    public static final int kRightMotorCANID = 9;
 
     public static final double kConversionFactor = 60.0/11.0*60.0/18.0*38.0/16.0;
 
@@ -40,7 +40,7 @@ public class IntakePivotConstants {
 
     public static final int kCurrentLimit = 30;
 
-    public static final IdleMode kIdleMode = IdleMode.kBrake;
+    public static final IdleMode kIdleMode = IdleMode.kCoast;
 
     // YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS LINE UNLESS YOU'RE ADDING A CONFIGURATION ITEM
     

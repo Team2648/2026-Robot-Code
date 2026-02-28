@@ -20,15 +20,15 @@ public class DrivetrainConstants {
     public static final double kRearLeftMagEncoderOffset = 3.761;
     public static final double kRearRightMagEncoderOffset = 2.573;
 
-    public static final int kFrontLeftDrivingCANID = 0;
+    public static final int kFrontLeftDrivingCANID = 4;
     public static final int kFrontRightDrivingCANID = 3;
     public static final int kRearLeftDrivingCANID = 1;
     public static final int kRearRightDrivingCANID = 2;
 
-    public static final int kFrontLeftTurningCANID = 8;
-    public static final int kFrontRightTurningCANID = 9;
-    public static final int kRearLeftTurningCANID = 7;
-    public static final int kRearRightTurningCANID = 6;
+    public static final int kFrontLeftTurningCANID = 7; // 8
+    public static final int kFrontRightTurningCANID = 21; //9
+    public static final int kRearLeftTurningCANID = 6; //7
+    public static final int kRearRightTurningCANID = 8; //6
 
     public static final int kFrontLeftAnalogInPort = 3;
     public static final int kFrontRightAnalogInPort = 2;

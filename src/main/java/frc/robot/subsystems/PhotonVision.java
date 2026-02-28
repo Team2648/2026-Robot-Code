@@ -75,19 +75,19 @@ public class PhotonVision extends SubsystemBase {
 
             if(!results.isEmpty()) {
                 latestResults.set(i, results.get(results.size() - 1));
-            }
 
-            Optional<EstimatedRobotPose> pose = estimators[i].update(latestResults.get(i));
+                Optional<EstimatedRobotPose> pose = estimators[i].update(latestResults.get(i));
 
-            if(!pose.isEmpty()) {
-                VisualPose visualPose = new VisualPose(
-                    cameras[i].getName(),
-                    pose.get().estimatedPose.toPose2d(), 
-                    pose.get().timestampSeconds
-                );
+                if(!pose.isEmpty()) {
+                    VisualPose visualPose = new VisualPose(
+                        cameras[i].getName(),
+                        pose.get().estimatedPose.toPose2d(), 
+                        pose.get().timestampSeconds
+                    );
 
-                for(Consumer<VisualPose> consumer: poseEstimateConsumers) {
-                    consumer.accept(visualPose);
+                    for(Consumer<VisualPose> consumer: poseEstimateConsumers) {
+                        consumer.accept(visualPose);
+                    }
                 }
             }
         }

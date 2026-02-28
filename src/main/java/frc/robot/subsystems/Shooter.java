@@ -19,10 +19,8 @@ import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.ShooterConstants.ShooterSpeeds;
 
 public class Shooter extends SubsystemBase {
-    private SparkMax leftMotor1;
-    private SparkMax leftMotor2;
-    private SparkMax rightMotor1;
-    private SparkMax rightMotor2;
+    private SparkMax leftMotor;
+    private SparkMax rightMotor;
 
     private AbsoluteEncoder leftEncoder;
     private AbsoluteEncoder rightEncoder;
@@ -33,40 +31,26 @@ public class Shooter extends SubsystemBase {
     private ShooterSpeeds targetSpeeds;
 
     public Shooter() {
-        leftMotor1 = new SparkMax(ShooterConstants.kLeftShooterMotor1CANID, MotorType.kBrushless);
-        leftMotor2 = new SparkMax(ShooterConstants.kLeftShooterMotor2CANID, MotorType.kBrushless);
-        rightMotor1 = new SparkMax(ShooterConstants.kRightShooterMotor1CANID, MotorType.kBrushless);
-        rightMotor2 = new SparkMax(ShooterConstants.kRightShooterMotor2CANID, MotorType.kBrushless);
+        leftMotor = new SparkMax(ShooterConstants.kLeftShooterMotorCANID, MotorType.kBrushless);
+        rightMotor = new SparkMax(ShooterConstants.kRightShooterMotorCANID, MotorType.kBrushless);
 
-        leftMotor1.configure(
-            ShooterConstants.kLeftMotor1Config, 
+        leftMotor.configure(
+            ShooterConstants.kLeftMotorConfig, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
 
-        rightMotor1.configure(
-            ShooterConstants.kRightMotor1Config, 
+        rightMotor.configure(
+            ShooterConstants.kRightMotorConfig, 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
         );
 
-        leftMotor2.configure(
-            ShooterConstants.kLeftMotor2Config, 
-            ResetMode.kResetSafeParameters, 
-            PersistMode.kPersistParameters
-        );
+        leftEncoder = leftMotor.getAbsoluteEncoder();
+        rightEncoder = rightMotor.getAbsoluteEncoder();
 
-        rightMotor2.configure(
-            ShooterConstants.kRightMotor2Config, 
-            ResetMode.kResetSafeParameters, 
-            PersistMode.kPersistParameters
-        );
-
-        leftEncoder = leftMotor1.getAbsoluteEncoder();
-        rightEncoder = rightMotor1.getAbsoluteEncoder();
-
-        leftClosedLoopController = leftMotor1.getClosedLoopController();
-        rightClosedLoopController = rightMotor1.getClosedLoopController();
+        leftClosedLoopController = leftMotor.getClosedLoopController();
+        rightClosedLoopController = rightMotor.getClosedLoopController();
 
         // TODO Set this to the initial startup speed
         targetSpeeds = null;
@@ -92,8 +76,8 @@ public class Shooter extends SubsystemBase {
 
         return run(() -> {
             if(targetSpeeds == null) {
-                leftMotor1.disable();
-                rightMotor1.disable();
+                leftMotor.disable();
+                rightMotor.disable();
             } else {
                 leftClosedLoopController.setSetpoint(
                     targetSpeeds.getSpeedMPS(), 
@@ -101,7 +85,7 @@ public class Shooter extends SubsystemBase {
                 );
 
                 rightClosedLoopController.setSetpoint(
-                    targetSpeeds.getSpeedMPS(), 
+                    -targetSpeeds.getSpeedMPS(), 
                     ControlType.kVelocity
                 );
             }
@@ -112,8 +96,8 @@ public class Shooter extends SubsystemBase {
         targetSpeeds = null;
 
         return run(() -> {
-            leftMotor1.set(speed.getAsDouble());
-            rightMotor1.set(speed.getAsDouble());
+            leftMotor.set(speed.getAsDouble() * ShooterConstants.kMaxManualSpeedMultiplier);
+            rightMotor.set(speed.getAsDouble() * ShooterConstants.kMaxManualSpeedMultiplier);
         });
     }
 
