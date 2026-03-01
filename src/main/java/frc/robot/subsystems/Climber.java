@@ -50,9 +50,9 @@ public class Climber extends SubsystemBase {
     }
 
     public Command maintainPosition(ClimberPositions position) {
-        targetPosition = position;
-
         return run(() -> {
+            targetPosition = position;
+
             controller.setSetpoint(
                 position.getPositionMeters(), 
                 ControlType.kPosition
@@ -61,9 +61,9 @@ public class Climber extends SubsystemBase {
     }
 
     public Command manualSpeed(DoubleSupplier speed) {
-        targetPosition = null;
-
         return run(() -> {
+            targetPosition = null;
+
             motor.set(speed.getAsDouble());
         });
     }

@@ -80,9 +80,9 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command maintainSpeed(ShooterSpeeds speeds) {
-        targetSpeeds = speeds;
-
         return run(() -> {
+            targetSpeeds = speeds;
+
             if(targetSpeeds == null) {
                 leftMotor.disable();
                 rightMotor.disable();
@@ -101,9 +101,9 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command manualSpeed(DoubleSupplier speed) {
-        targetSpeeds = null;
-
         return run(() -> {
+            targetSpeeds = null;
+            
             leftMotor.set(speed.getAsDouble() * ShooterConstants.kMaxManualSpeedMultiplier);
             rightMotor.set(speed.getAsDouble() * ShooterConstants.kMaxManualSpeedMultiplier);
         });

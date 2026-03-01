@@ -60,9 +60,9 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public Command maintainPosition(IntakePivotPosition position) {
-        currentTargetPosition = position;
-
         return run(() -> {
+            currentTargetPosition = position;
+
             if(currentTargetPosition == null) {
                 leftMotor.disable();
             } else {
@@ -72,9 +72,9 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public Command manualSpeed(DoubleSupplier speed) {
-        currentTargetPosition = null;
-
         return run(() -> {
+            currentTargetPosition = null;
+            
             leftMotor.set(speed.getAsDouble() * IntakePivotConstants.kMaxManualSpeedMultiplier);
         });
     }
