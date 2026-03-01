@@ -37,20 +37,20 @@ public class ShooterConstants {
     public static final int kRightShooterMotorCANID = 5;
 
     public static final boolean kLeftShooterMotorInverted = true;
-    public static final boolean kRightShooterMotorInverted = true;
+    public static final boolean kRightShooterMotorInverted = false;
 
     public static final double kLeftP = 0;//0.1;
     public static final double kLeftI = 0;
     public static final double kLeftD = 0;
     public static final double kLeftS = 0;
-    public static final double kLeftV = 0.21;
+    public static final double kLeftV = 0.0;
     public static final double kLeftA = 0;
 
     public static final double kRightP = 0;//0.1;
     public static final double kRightI = 0;
     public static final double kRightD = 0;
     public static final double kRightS = 0;
-    public static final double kRightV = 0.21;
+    public static final double kRightV = 0.1;
     public static final double kRightA = 0;
 
     public static final double kMaxManualSpeedMultiplier = 1;
@@ -75,7 +75,7 @@ public class ShooterConstants {
             .inverted(kLeftShooterMotorInverted);
         kLeftMotorConfig.absoluteEncoder
             .positionConversionFactor(1)
-            .velocityConversionFactor(1);
+            .velocityConversionFactor(60);
         kLeftMotorConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
             .pid(kLeftP, kLeftI, kLeftD)
@@ -89,7 +89,7 @@ public class ShooterConstants {
             .inverted(kRightShooterMotorInverted);
         kRightMotorConfig.absoluteEncoder
             .positionConversionFactor(1)
-            .velocityConversionFactor(1)
+            .velocityConversionFactor(60)
             .inverted(true);
         kRightMotorConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)

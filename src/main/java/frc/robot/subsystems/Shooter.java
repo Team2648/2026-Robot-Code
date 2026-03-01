@@ -7,6 +7,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -24,6 +25,8 @@ public class Shooter extends SubsystemBase {
 
     private AbsoluteEncoder leftEncoder;
     private AbsoluteEncoder rightEncoder;
+
+    private RelativeEncoder rightRelative;
 
     private SparkClosedLoopController leftClosedLoopController;
     private SparkClosedLoopController rightClosedLoopController;
@@ -54,6 +57,8 @@ public class Shooter extends SubsystemBase {
 
         // TODO Set this to the initial startup speed
         targetSpeeds = null;
+
+        rightRelative = rightMotor.getEncoder();
     }
 
     @Override
@@ -65,6 +70,9 @@ public class Shooter extends SubsystemBase {
 
         Logger.recordOutput("Shooter/LeftRollers/CurrentRPM", leftEncoder.getVelocity());
         Logger.recordOutput("Shooter/RightRollers/CurrentRPM", rightEncoder.getVelocity());
+
+        Logger.recordOutput("Shooter/RightRollers/rightmotor", rightRelative.getVelocity());
+
 
         // TODO How does the SparkMAX controller determine "at setpoint"? Is there any tolerance?
         Logger.recordOutput("Shooter/LeftRollers/AtSetpoint", leftClosedLoopController.isAtSetpoint());
@@ -85,7 +93,7 @@ public class Shooter extends SubsystemBase {
                 );
 
                 rightClosedLoopController.setSetpoint(
-                    -targetSpeeds.getSpeedRPM(), 
+                    targetSpeeds.getSpeedRPM(), 
                     ControlType.kVelocity
                 );
             }
