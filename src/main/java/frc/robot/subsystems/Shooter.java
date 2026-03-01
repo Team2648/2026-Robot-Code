@@ -59,12 +59,12 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         Logger.recordOutput(
-            "Shooter/TargetMPS", 
-            targetSpeeds == null ? 0 : targetSpeeds.getSpeedMPS()
+            "Shooter/TargetRPM", 
+            targetSpeeds == null ? 0 : targetSpeeds.getSpeedRPM()
         );
 
-        Logger.recordOutput("Shooter/LeftRollers/CurrentMPS", leftEncoder.getVelocity());
-        Logger.recordOutput("Shooter/RightRollers/CurrentMPS", rightEncoder.getVelocity());
+        Logger.recordOutput("Shooter/LeftRollers/CurrentRPM", leftEncoder.getVelocity());
+        Logger.recordOutput("Shooter/RightRollers/CurrentRPM", rightEncoder.getVelocity());
 
         // TODO How does the SparkMAX controller determine "at setpoint"? Is there any tolerance?
         Logger.recordOutput("Shooter/LeftRollers/AtSetpoint", leftClosedLoopController.isAtSetpoint());
@@ -80,12 +80,12 @@ public class Shooter extends SubsystemBase {
                 rightMotor.disable();
             } else {
                 leftClosedLoopController.setSetpoint(
-                    targetSpeeds.getSpeedMPS(), 
+                    targetSpeeds.getSpeedRPM(), 
                     ControlType.kVelocity
                 );
 
                 rightClosedLoopController.setSetpoint(
-                    -targetSpeeds.getSpeedMPS(), 
+                    -targetSpeeds.getSpeedRPM(), 
                     ControlType.kVelocity
                 );
             }

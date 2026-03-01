@@ -8,17 +8,23 @@ import edu.wpi.first.math.util.Units;
 
 public class ShooterConstants {
     public enum ShooterSpeeds {
-        kHubSpeed(0),
-        kFeedSpeed(0.35);
+        kHubSpeed(4000.0),
+        kFeedSpeed(6000.0);
 
         private double speedMPS;
+        private double speedRPM;
 
-        private ShooterSpeeds(double speedMPS) {
-            this.speedMPS = speedMPS;
+        private ShooterSpeeds(double speedRPM) {
+            this.speedMPS = speedRPM * kWheelDiameter*Math.PI;
+            this.speedRPM = speedRPM;
         }
 
         public double getSpeedMPS() {
-            return speedMPS;
+            return speedMPS * kWheelDiameter*Math.PI;
+        }
+
+        public double getSpeedRPM(){
+            return speedRPM;
         }
     }
 
@@ -31,16 +37,16 @@ public class ShooterConstants {
     public static final int kRightShooterMotorCANID = 5;
 
     public static final boolean kLeftShooterMotorInverted = true;
-    public static final boolean kRightShooterMotorInverted = false;
+    public static final boolean kRightShooterMotorInverted = true;
 
-    public static final double kLeftP = 0.1;
+    public static final double kLeftP = 0;//0.1;
     public static final double kLeftI = 0;
     public static final double kLeftD = 0;
     public static final double kLeftS = 0;
     public static final double kLeftV = 0.21;
     public static final double kLeftA = 0;
 
-    public static final double kRightP = 0.1;
+    public static final double kRightP = 0;//0.1;
     public static final double kRightI = 0;
     public static final double kRightD = 0;
     public static final double kRightS = 0;
@@ -68,8 +74,8 @@ public class ShooterConstants {
             .smartCurrentLimit(kCurrentLimit)
             .inverted(kLeftShooterMotorInverted);
         kLeftMotorConfig.absoluteEncoder
-            .positionConversionFactor(kWheelDiameter * Math.PI)
-            .velocityConversionFactor(kWheelDiameter * Math.PI / 60);
+            .positionConversionFactor(1)
+            .velocityConversionFactor(1);
         kLeftMotorConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
             .pid(kLeftP, kLeftI, kLeftD)
@@ -82,8 +88,9 @@ public class ShooterConstants {
             .smartCurrentLimit(kCurrentLimit)
             .inverted(kRightShooterMotorInverted);
         kRightMotorConfig.absoluteEncoder
-            .positionConversionFactor(kWheelDiameter * Math.PI)
-            .velocityConversionFactor(kWheelDiameter * Math.PI / 60);
+            .positionConversionFactor(1)
+            .velocityConversionFactor(1)
+            .inverted(true);
         kRightMotorConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
             .pid(kRightP, kRightI, kRightD)
