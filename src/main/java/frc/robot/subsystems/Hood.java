@@ -43,6 +43,7 @@ public class Hood extends SubsystemBase {
         );   
 
         encoder = motor.getEncoder();
+        encoder.setPosition(HoodConstants.kStartupAngle);
 
         controller = motor.getClosedLoopController();
 
@@ -68,9 +69,10 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {
         Logger.recordOutput("Hood/OutputCurrent", motor.getOutputCurrent());
-        Logger.recordOutput("Hood/CurrentTarget", currentTargetDegrees);
-        Logger.recordOutput("Hood/CurrentAngle", encoder.getPosition());
+        Logger.recordOutput("Hood/CurrentTarget", Math.toDegrees(currentTargetDegrees));
+        Logger.recordOutput("Hood/CurrentAngle", Math.toDegrees(encoder.getPosition()));
         Logger.recordOutput("Hood/AtSetpoint", controller.isAtSetpoint());
+        Logger.recordOutput("Hood/VoltageOut", motor.getAppliedOutput()*motor.getBusVoltage());
     }
 
     public Command trackToAngle(DoubleSupplier degreeAngleSupplier) {

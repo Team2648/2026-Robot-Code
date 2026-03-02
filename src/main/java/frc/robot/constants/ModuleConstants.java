@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -63,9 +64,11 @@ public class ModuleConstants {
     public static final double kTurningMotorReduction = 150.0/7.0;
     public static final double kTurningFactor = 2 * Math.PI / kTurningMotorReduction;
     // TODO Adjust? Let over from 2025
-    public static final double kTurnP = 1;
+    public static final double kTurnP = 12;
     public static final double kTurnI = 0;
     public static final double kTurnD = 0;
+
+    public static final double kTurnTolerance = Math.toRadians(0.25);
 
     public static final boolean kIsEncoderInverted = false;
 
@@ -118,6 +121,7 @@ public class ModuleConstants {
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(kTurnP, kTurnI, kTurnD)
             .outputRange(-1, 1)
+            .allowedClosedLoopError(kTurnTolerance, ClosedLoopSlot.kSlot0)
             .positionWrappingEnabled(true)
             .positionWrappingInputRange(0, 2 * Math.PI);
             

@@ -9,7 +9,7 @@ import edu.wpi.first.math.util.Units;
 public class ShooterConstants {
     public enum ShooterSpeeds {
         kHubSpeed(3000.0),
-        kFeedSpeed(3000.0);
+        kFeedSpeed(5000.0);
 
         private double speedMPS;
         private double speedRPM;
@@ -39,14 +39,14 @@ public class ShooterConstants {
     public static final boolean kLeftShooterMotorInverted = true;
     public static final boolean kRightShooterMotorInverted = false;
 
-    public static final double kLeftP = 0.0;//0.001;
+    public static final double kLeftP = 0.001;
     public static final double kLeftI = 0;
     public static final double kLeftD = 0;
     public static final double kLeftS = 0;
-    public static final double kLeftV = 0.00121;
+    public static final double kLeftV = 0.0013;
     public static final double kLeftA = 0;
 
-    public static final double kRightP = 0.001;//0.1;
+    public static final double kRightP = 0.001;
     public static final double kRightI = 0;
     public static final double kRightD = 0.000;
     public static final double kRightS = 0;

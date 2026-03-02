@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -17,16 +18,17 @@ public class HoodConstants {
     // TODO Real Values
     public static final int kMotorCANID = 12;
 
-    public static final double kConversionFactor = 3.0*147.0/8.0;
+    public static final double kConversionFactor = (1.0/3.0)*(8.0/147.0)*2*Math.PI;
 
-    public static final double kP = 0;
+    public static final double kP = 1.75;
     public static final double kI = 0;
     public static final double kD = 0;
-    public static final double kS = 0;
+    public static final double kS = 0.435;
     public static final double kV = 0;
     public static final double kA = 0;
-    public static final double kStartupAngle = 0;
-    public static final double kMaxManualSpeedMultiplier = 1;
+    public static final double kStartupAngle = 0.0;
+    public static final double kMaxManualSpeedMultiplier = 0.1;
+    public static final double kTolerance = Math.toRadians(0.5);
 
     public static final double kAmpsToTriggerPositionReset = 10;
 
@@ -36,7 +38,7 @@ public class HoodConstants {
 
     public static final int kCurrentLimit = 15;
 
-    public static final boolean kInverted = false;
+    public static final boolean kInverted = true;
     public static final boolean kUseInterpolatorForAngle = false;
 
     public static final IdleMode kIdleMode = IdleMode.kBrake;
@@ -60,6 +62,7 @@ public class HoodConstants {
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(kP, kI, kD)
             .outputRange(-1, 1)
+            .allowedClosedLoopError(kTolerance, ClosedLoopSlot.kSlot0)
             .feedForward
                 .sva(kS, kV, kA);
 

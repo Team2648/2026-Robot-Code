@@ -109,7 +109,7 @@ public class RobotContainer {
         // after the electronics rebuild. For testing normal operation nothing about the Drivetrain
         // class should need to change
         drivetrain.setDefaultCommand(drivetrain.drive(() -> 0, () -> 0, () -> 0, () -> true));
-        /*drivetrain.setDefaultCommand(
+        drivetrain.setDefaultCommand(
             drivetrain.drive(
                 driver::getLeftY,
                 driver::getLeftX, 
@@ -117,7 +117,7 @@ public class RobotContainer {
                 () -> true
             )
         );
-
+/* 
         // This needs to be tested after a prolonged amount of driving around <i>aggressively</i>.
         // Do things like going over the bump repeatedly, spin around a bunch, etc. 
         // If this works well over time, then this is likely all we need
@@ -225,6 +225,10 @@ public class RobotContainer {
         // You need to have graphs up of the logged data to make sure the response is correct
         secondary.x().whileTrue(intakePivot.maintainPosition(IntakePivotPosition.kDown));
         secondary.y().whileTrue(intakePivot.maintainPosition(IntakePivotPosition.kUp));
+
+        secondary.povUp().whileTrue(hood.trackToAngle(() -> Math.toRadians(40.0)));
+        secondary.povDown().whileTrue(hood.trackToAngle(() -> Math.toRadians(0.0)));
+        
 
         // TODO Some means of testing hood PIDF
         // TODO Some means of testing climber PIDF
