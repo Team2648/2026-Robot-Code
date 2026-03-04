@@ -42,7 +42,7 @@ import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
-    //private PhotonVision vision;
+    private PhotonVision vision;
     private Drivetrain drivetrain;
     private Hood hood;
     private Shooter shooter;
@@ -59,7 +59,7 @@ public class RobotContainer {
     private Timer shiftTimer;
 
     public RobotContainer() {
-        //vision = new PhotonVision();
+        vision = new PhotonVision();
         drivetrain = new Drivetrain(null);
         hood = new Hood();
         shooter = new Shooter();
@@ -68,14 +68,14 @@ public class RobotContainer {
         spindexer = new Spindexer();
         //climber = new Climber();
 
-        /*
+        
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
             Logger.recordOutput(
                 "Vision/" + vp.cameraName() + "/Pose", 
                 vp.visualPose()
             );
-        });*/
+        });
 
         driver = new CommandXboxController(OIConstants.kDriverControllerPort);
         secondary = new CommandXboxController(OIConstants.kOperatorControllerPort);
@@ -108,7 +108,7 @@ public class RobotContainer {
         // This should just work, if it doesn't it's likely modules aren't assigned the right IDs
         // after the electronics rebuild. For testing normal operation nothing about the Drivetrain
         // class should need to change
-        drivetrain.setDefaultCommand(drivetrain.drive(() -> 0, () -> 0, () -> 0, () -> true));
+        //drivetrain.setDefaultCommand(drivetrain.drive(() -> 0, () -> 0, () -> 0, () -> true));
         drivetrain.setDefaultCommand(
             drivetrain.drive(
                 driver::getLeftY,
@@ -117,6 +117,8 @@ public class RobotContainer {
                 () -> true
             )
         );
+
+        driver.y().whileTrue(drivetrain.zeroHeading());
 /* 
         // This needs to be tested after a prolonged amount of driving around <i>aggressively</i>.
         // Do things like going over the bump repeatedly, spin around a bunch, etc. 
@@ -168,8 +170,7 @@ public class RobotContainer {
         // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the 
         // constants file for the subsystem having the problem
         driver.rightBumper().whileTrue(
-            //intakeRoller.runIn().alongWith(spindexer.spinToShooter())
-            spindexer.spinToShooter()
+            spindexer.spinToShooter()  
         );
 
         // While holding the left bumper of the driver controller, the intake rollers
@@ -178,7 +179,8 @@ public class RobotContainer {
         // DO NOT INVERT MOTION WITH UNARY MINUS (-). Every motor can be inverted from the 
         // constants file for the subsystem having the problem
         driver.leftBumper().whileTrue(
-            intakeRoller.runOut().alongWith(spindexer.spinToIntake())
+            intakeRoller.runIn()
+            //intakeRoller.runOut().alongWith(spindexer.spinToIntake())
         );
 
         // While holding D-Pad up on the secondary controller, the shooter should spin

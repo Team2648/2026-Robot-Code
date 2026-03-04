@@ -323,6 +323,13 @@ public class Drivetrain extends SubsystemBase {
         });
     }
 
+    public Command zeroHeading() {
+        return run(() -> {
+            gyro.reset();
+            estimator.resetRotation(new Rotation2d(0));
+        });
+    }
+
     public void consumeVisualPose(VisualPose pose) {
         estimator.addVisionMeasurement(
             pose.visualPose(), 
