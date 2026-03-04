@@ -245,14 +245,22 @@ public class RobotContainer {
                 () -> true
             )
         );
+        shooter.setDefaultCommand(shooter.maintainSpeed(ShooterSpeeds.kIdleSpeed));
+        intakeRoller.setDefaultCommand(intakeRoller.stop());
+        spindexer.setDefaultCommand(spindexer.stop());
 
-        driver.a().whileTrue(
+        intakePivot.setDefaultCommand(intakePivot.manualSpeed(() -> secondary.getLeftY()));
+
+        driver.leftTrigger().whileTrue(
             drivetrain.lockRotationToHub(
                 driver::getLeftY, 
                 driver::getLeftX, 
                 false
             ) 
         );
+
+        driver.rightTrigger().whileTrue(spindexer.spinToShooter());
+        driver.b().whileTrue(spindexer.spinToIntake());
 
         /*
         driver.b().whileTrue(
@@ -267,9 +275,8 @@ public class RobotContainer {
             )
         );*/
 
-        shooter.setDefaultCommand(
-            shooter.maintainSpeed(ShooterSpeeds.kHubSpeed)
-        );
+        secondary.a().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed));
+        secondary.y().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kFeedSpeed));
 
         hood.setDefaultCommand(hood.trackToAngle(() -> {
             Pose2d drivetrainPose = drivetrain.getPose();
