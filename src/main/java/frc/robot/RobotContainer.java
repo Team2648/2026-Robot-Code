@@ -89,6 +89,7 @@ public class RobotContainer {
 
         if(AutoConstants.kAutoConfigOk) {
             autoChooser = AutoBuilder.buildAutoChooser();
+            SmartDashboard.putData("Auto Chooser", autoChooser);
             configureNamedCommands();
         }
     }
