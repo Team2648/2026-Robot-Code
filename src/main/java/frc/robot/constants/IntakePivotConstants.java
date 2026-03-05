@@ -51,7 +51,7 @@ public class IntakePivotConstants {
         KLeftMotorConfig
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
-            .inverted(kInvertMotors);
+            .inverted(false);
         KLeftMotorConfig.encoder
             .positionConversionFactor(kConversionFactor)
             .velocityConversionFactor(kConversionFactor / 60);
@@ -67,7 +67,7 @@ public class IntakePivotConstants {
         kRightMotorConfig
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
-            .inverted(kInvertMotors)
+            .inverted(false)
             .follow(kLeftMotorCANID);
     }
 }

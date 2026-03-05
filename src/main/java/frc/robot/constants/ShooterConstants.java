@@ -9,12 +9,11 @@ import edu.wpi.first.math.util.Units;
 public class ShooterConstants {
     public enum ShooterSpeeds {
         kHubSpeed(3000.0),
-        kFeedSpeed(5000.0);
+        kFeedSpeed(5000.0),
         kIdleSpeed(750.0);
 
         private double speedMPS;
         private double speedRPM;
-        private double kIdleSpeed;
 
         private ShooterSpeeds(double speedRPM) {
             this.speedMPS = speedRPM * kWheelDiameter*Math.PI;

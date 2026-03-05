@@ -76,6 +76,7 @@ public class IntakePivot extends SubsystemBase {
             currentTargetPosition = null;
             
             leftMotor.set(speed.getAsDouble() * IntakePivotConstants.kMaxManualSpeedMultiplier);
+            rightMotor.set(speed.getAsDouble() * IntakePivotConstants.kMaxManualSpeedMultiplier);
         });
     }
 

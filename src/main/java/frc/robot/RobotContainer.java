@@ -83,8 +83,8 @@ public class RobotContainer {
         shiftTimer = new Timer();
         shiftTimer.reset();
 
-        //configureBindings();
-        testConfigureBindings();
+        configureBindings();
+        //testConfigureBindings();
         configureShiftDisplay();
 
         if(AutoConstants.kAutoConfigOk) {
