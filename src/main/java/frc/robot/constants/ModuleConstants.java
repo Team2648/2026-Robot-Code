@@ -34,7 +34,7 @@ public class ModuleConstants {
     }
 
     // DRIVING MOTOR CONFIG (Kraken)
-    public static final double kDrivingMotorReduction = (14.0 * 28.0 * 15.0) / (50 * 16 * 45);
+    public static final double kDrivingMotorReduction = (50 * 16 * 45)/(14.0 * 28.0 * 15.0);
 
     public static final double kDrivingMotorFeedSpeedRPS = KrakenMotorConstants.kFreeSpeedRPM / 60;
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
@@ -45,7 +45,7 @@ public class ModuleConstants {
     public static final double kDrivingVelocityFeedForward = 1 / kDriveWheelFreeSpeedRPS;
     
     // TODO Hold over from 2025, adjust?
-    public static final double kDriveP = .04;
+    public static final double kDriveP = .06;
     public static final double kDriveI = 0;
     public static final double kDriveD = 0;
     public static final double kDriveS = 0;

@@ -144,6 +144,7 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Drivetrain/Pose", getPose());
         Logger.recordOutput("Drivetrain/Gyro Angle", getGyroValue());
         Logger.recordOutput("Drivetrain/Heading", getHeadingDegrees());
+        Logger.recordOutput("Drivetrain/Velocity", getCurrentChassisSpeeds());
     }
 
     /**
