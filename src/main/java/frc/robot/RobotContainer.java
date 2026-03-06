@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -246,11 +247,13 @@ public class RobotContainer {
                 () -> true
             )
         );
-        shooter.setDefaultCommand(shooter.maintainSpeed(ShooterSpeeds.kIdleSpeed));
+        shooter.setDefaultCommand(shooter.stop());
         intakeRoller.setDefaultCommand(intakeRoller.stop());
         spindexer.setDefaultCommand(spindexer.stop());
 
         intakePivot.setDefaultCommand(intakePivot.manualSpeed(() -> secondary.getLeftY()));
+
+        driver.y().whileTrue(drivetrain.zeroHeading());
 
         driver.leftTrigger().whileTrue(
             drivetrain.lockRotationToHub(
@@ -260,10 +263,11 @@ public class RobotContainer {
             ) 
         );
 
+        driver.leftBumper().whileTrue(intakeRoller.runOut());
+        driver.rightBumper().whileTrue(intakeRoller.runIn());
+
         driver.rightTrigger().whileTrue(spindexer.spinToShooter());
         driver.b().whileTrue(spindexer.spinToIntake());
-
-        /*
         driver.b().whileTrue(
             drivetrain.lockToYaw(
                 () -> {
@@ -274,11 +278,15 @@ public class RobotContainer {
                 driver::getLeftY, 
                 driver::getLeftX
             )
-        );*/
+        );
 
         secondary.a().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed));
-        secondary.y().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kFeedSpeed));
+        secondary.x().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kFeedSpeed));
 
+        secondary.y().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(40)));
+        secondary.b().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(30)));
+
+        /* 
         hood.setDefaultCommand(hood.trackToAngle(() -> {
             Pose2d drivetrainPose = drivetrain.getPose();
             Pose2d hubPose = Utilities.getHubPose();
@@ -300,7 +308,7 @@ public class RobotContainer {
                     false
                 );
             }
-        }));
+        }));*/
     }
 
     private void configureNamedCommands() {

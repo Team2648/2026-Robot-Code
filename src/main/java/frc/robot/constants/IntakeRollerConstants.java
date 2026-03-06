@@ -11,7 +11,7 @@ public class IntakeRollerConstants {
 
     public static final boolean kInvertMotors = true;
 
-    public static final double kSpeed = .6;
+    public static final double kSpeed = 1;
 
     public static final IdleMode kIdleMode = IdleMode.kCoast;
 

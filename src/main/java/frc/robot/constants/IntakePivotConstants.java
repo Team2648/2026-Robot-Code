@@ -67,7 +67,7 @@ public class IntakePivotConstants {
         kRightMotorConfig
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
-            .inverted(false)
-            .follow(kLeftMotorCANID);
+            .inverted(true)
+            ;//.follow(kLeftMotorCANID);
     }
 }

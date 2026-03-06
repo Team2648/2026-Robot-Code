@@ -8,8 +8,8 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.utilities.PhotonVisionConfig;
 
 public class PhotonConstants {
-    public static final String kCamera1Name = "pv1";
-    public static final String kCamera2Name = "pv2";
+    public static final String kCamera1Name = "CameraPV1";
+    public static final String kCamera2Name = "CameraPV2";
 
     // TODO Need actual values for all of this
     public static final Transform3d kCamera1RobotToCam = new Transform3d();
