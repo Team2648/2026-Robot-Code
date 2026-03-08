@@ -26,10 +26,10 @@ public class Hood extends SubsystemBase {
 
     private SparkClosedLoopController controller;
 
-    private Trigger resetTrigger;
-    private Trigger timerTrigger;
+    //private Trigger resetTrigger;
+    //private Trigger timerTrigger;
 
-    private Timer resetTimer;
+    //private Timer resetTimer;
 
     private double currentTargetDegrees;
 
@@ -47,7 +47,7 @@ public class Hood extends SubsystemBase {
 
         controller = motor.getClosedLoopController();
 
-        resetTimer = new Timer();
+        /*resetTimer = new Timer();
         resetTimer.reset();
 
         resetTrigger = new Trigger(() -> (motor.getOutputCurrent() > HoodConstants.kAmpsToTriggerPositionReset));
@@ -61,7 +61,7 @@ public class Hood extends SubsystemBase {
         timerTrigger.onTrue(new InstantCommand(() -> {
             encoder.setPosition(0);
             resetTimer.reset();
-        }));
+        }));*/
 
         currentTargetDegrees = HoodConstants.kStartupAngle;
     }
@@ -96,7 +96,7 @@ public class Hood extends SubsystemBase {
      * 
      * @return A complete Command structure that performs the specified action
      */
-    public Command automatedRezero() {
+    /*public Command automatedRezero() {
         return manualSpeed(() -> -1)
             .until(timerTrigger)
             .andThen(
@@ -112,11 +112,11 @@ public class Hood extends SubsystemBase {
      * 
      * @return A complete Command structure that performs the specified action
      */
-    public Command automatedRezeroNoTimer() {
+    /*public Command automatedRezeroNoTimer() {
         return manualSpeed(() -> -1)
             .until(() -> motor.getOutputCurrent() >= HoodConstants.kAmpsToTriggerPositionReset)
             .andThen(new InstantCommand(() -> encoder.setPosition(0)));
-    }
+    }*/
 
     public Command manualSpeed(DoubleSupplier speed) {
         currentTargetDegrees = 0;

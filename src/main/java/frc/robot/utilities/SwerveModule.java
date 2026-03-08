@@ -109,6 +109,7 @@ public class SwerveModule {
         drive.getConfigurator().apply(ModuleConstants.kDriveMotorConfig);
         drive.getConfigurator().apply(ModuleConstants.kAudioConfig);
         drive.getConfigurator().apply(ModuleConstants.kDriveSlot0Config);
+        drive.getConfigurator().apply(ModuleConstants.kDriveClosedLoopRampConfig);
 
         turning.configure(
             ModuleConstants.turningConfig,

@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import com.ctre.phoenix6.configs.AudioConfigs;
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -51,10 +52,11 @@ public class ModuleConstants {
     public static final double kDriveS = 0;
     public static final double kDriveV = kDrivingVelocityFeedForward;
     public static final double kDriveA = 0;
+    public static final double kClosedLoopRampRate = .01;
 
     // TODO Hold over from 2025, adjust?
-    public static final int kDriveMotorStatorCurrentLimit = 100;
-    public static final int kDriveMotorSupplyCurrentLimit = 65;
+    public static final int kDriveMotorStatorCurrentLimit = 90;
+    public static final int kDriveMotorSupplyCurrentLimit = 55;
 
     // TODO Hold over from 2025, adjust?
     public static final InvertedValue kDriveInversionState = InvertedValue.Clockwise_Positive;
@@ -88,6 +90,7 @@ public class ModuleConstants {
     public static final MotorOutputConfigs kDriveMotorConfig = new MotorOutputConfigs();
     public static final AudioConfigs kAudioConfig = new AudioConfigs();
     public static final Slot0Configs kDriveSlot0Config = new Slot0Configs();
+    public static final ClosedLoopRampsConfigs kDriveClosedLoopRampConfig = new ClosedLoopRampsConfigs();
 
     static {
         kDriveFeedConfig.SensorToMechanismRatio = kDrivingMotorReduction;
@@ -108,6 +111,8 @@ public class ModuleConstants {
         kDriveSlot0Config.kS = kDriveS;
         kDriveSlot0Config.kV = kDriveV;
         kDriveSlot0Config.kA = kDriveA;
+
+        kDriveClosedLoopRampConfig.withVoltageClosedLoopRampPeriod(kClosedLoopRampRate);
 
         turningConfig
             .idleMode(kTurnIdleMode)
