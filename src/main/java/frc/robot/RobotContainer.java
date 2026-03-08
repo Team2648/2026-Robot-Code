@@ -43,7 +43,7 @@ import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
-    private PhotonVision vision;
+  //  private PhotonVision vision;
     private Drivetrain drivetrain;
     private Hood hood;
     private Shooter shooter;
@@ -60,7 +60,7 @@ public class RobotContainer {
     private Timer shiftTimer;
 
     public RobotContainer() {
-        vision = new PhotonVision();
+        //vision = new PhotonVision();
         drivetrain = new Drivetrain(null);
         hood = new Hood();
         shooter = new Shooter();
@@ -68,8 +68,9 @@ public class RobotContainer {
         intakeRoller = new IntakeRoller();
         spindexer = new Spindexer();
         //climber = new Climber();
+        configureNamedCommands();
 
-        
+        /* 
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
             Logger.recordOutput(
@@ -77,6 +78,7 @@ public class RobotContainer {
                 vp.visualPose()
             );
         });
+        */
 
         driver = new CommandXboxController(OIConstants.kDriverControllerPort);
         secondary = new CommandXboxController(OIConstants.kOperatorControllerPort);
@@ -91,7 +93,7 @@ public class RobotContainer {
         if(AutoConstants.kAutoConfigOk) {
             autoChooser = AutoBuilder.buildAutoChooser();
             SmartDashboard.putData("Auto Chooser", autoChooser);
-            configureNamedCommands();
+            
         }
     }
 
@@ -268,7 +270,7 @@ public class RobotContainer {
 
         driver.rightTrigger().whileTrue(spindexer.spinToShooter());
         driver.b().whileTrue(spindexer.spinToIntake());
-        driver.b().whileTrue(
+       /*  driver.b().whileTrue(
             drivetrain.lockToYaw(
                 () -> {
                     OptionalDouble maybeYaw = vision.getBestYawForTag(Utilities.getHubCenterAprilTagID());
@@ -278,13 +280,17 @@ public class RobotContainer {
                 driver::getLeftY, 
                 driver::getLeftX
             )
-        );
+        );*/
 
         secondary.a().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed));
         secondary.x().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kFeedSpeed));
 
         secondary.y().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(40)));
+        //40 good for feeding
         secondary.b().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(30)));
+        //30 degrees good for shooter far near outpost
+        secondary.rightBumper().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(10)));
+        //10 degrees good for shooting ~33in away from hub
 
         /* 
         hood.setDefaultCommand(hood.trackToAngle(() -> {
@@ -324,14 +330,26 @@ public class RobotContainer {
                 false // TODO Should this be true by default?
             )
         );
+
+        NamedCommands.registerCommand(
+            "intake down", 
+            intakePivot.manualSpeed(()->-0.75)
+                .withTimeout(1)
+        );
+
+        NamedCommands.registerCommand("spinup", 
+            shooter.maintainSpeed(ShooterSpeeds.kHubSpeed)
+                .withTimeout(3));
+
+        NamedCommands.registerCommand("shoot close", 
+            spindexer.spinToShooter()
+                .alongWith(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed))
+                .alongWith(hood.trackToAngle(() -> Units.degreesToRadians(10)))
+                .withTimeout(3));
     }
 
     public Command getAutonomousCommand() {
-        if(AutoConstants.kAutoConfigOk) {
-            return autoChooser.getSelected();
-        } else {
-            return new PrintCommand("Robot Config loading failed, autonomous disabled");
-        }
+        return autoChooser.getSelected();
     }
 
     /**

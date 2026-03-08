@@ -7,7 +7,7 @@ public class IntakeRollerConstants {
     // TODO Real values
     public static final int kMotorCANID = 20;
 
-    public static final int kCurrentLimit = 40;
+    public static final int kCurrentLimit = 65;
 
     public static final boolean kInvertMotors = true;
 

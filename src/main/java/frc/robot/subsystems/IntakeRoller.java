@@ -24,7 +24,7 @@ public class IntakeRoller extends SubsystemBase {
 
     public Command runIn() {
         return run(() -> {
-            motor.set(IntakeRollerConstants.kSpeed);
+            motor.set(IntakeRollerConstants.kSpeed*0.8);
         });
     }
 
