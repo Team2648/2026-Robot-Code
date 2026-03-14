@@ -31,6 +31,6 @@ public class IntakeRollerConstants {
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
             .inverted(kInvertRightMotor)
-            .follow(kRightMotorCANID);
+            .follow(kLeftMotorCANID);
     }
 }
