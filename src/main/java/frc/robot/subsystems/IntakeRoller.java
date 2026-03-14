@@ -10,33 +10,41 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.IntakeRollerConstants;
 
 public class IntakeRoller extends SubsystemBase {
-    private SparkMax motor;
+    private SparkMax leftMotor;
+    private SparkMax rightMotor;
 
     public IntakeRoller() {
-        motor = new SparkMax(IntakeRollerConstants.kMotorCANID, MotorType.kBrushless);
+        leftMotor = new SparkMax(IntakeRollerConstants.kLeftMotorCANID, MotorType.kBrushless);
+        rightMotor = new SparkMax(IntakeRollerConstants.kRightMotorCANID, MotorType.kBrushless);
 
-        motor.configure(
+        leftMotor.configure(
             IntakeRollerConstants.leftMotorConfig, 
             ResetMode.kResetSafeParameters, 
+            PersistMode.kPersistParameters
+        );
+
+        rightMotor.configure(
+            IntakeRollerConstants.rightMotorConfig,
+            ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters
         );
     }
 
     public Command runIn() {
         return run(() -> {
-            motor.set(IntakeRollerConstants.kSpeed*0.8);
+            leftMotor.set(IntakeRollerConstants.kSpeed*0.8);
         });
     }
 
     public Command runOut() {
         return run(() -> {
-            motor.set(-IntakeRollerConstants.kSpeed);
+            leftMotor.set(-IntakeRollerConstants.kSpeed);
         });
     }
 
     public Command stop() {
         return run(() -> {
-            motor.set(0);
+            leftMotor.set(0);
         });
     }
     
