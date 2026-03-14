@@ -10,8 +10,8 @@ public class IntakeRollerConstants {
 
     public static final int kCurrentLimit = 65;
 
-    public static final boolean kInvertLeftMotor = true;
-    public static final boolean kInvertRightMotor = false;
+    public static final boolean kInvertLeftMotor = false;
+    public static final boolean kInvertRightMotor = true;
 
     public static final double kSpeed = 1;
 
@@ -31,6 +31,6 @@ public class IntakeRollerConstants {
             .idleMode(kIdleMode)
             .smartCurrentLimit(kCurrentLimit)
             .inverted(kInvertRightMotor)
-            .follow(kLeftMotorCANID);
+        ;
     }
 }

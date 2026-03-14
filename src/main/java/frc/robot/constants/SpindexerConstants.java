@@ -19,7 +19,7 @@ public class SpindexerConstants {
     public static final double kSpindexerSpeed = 1;
     public static final double kFeederSpeed = 1;
 
-    public static final boolean kFeederMotorInverted = true;
+    public static final boolean kFeederMotorInverted = false;
 
     public static final InvertedValue kSpindexerInversionState = InvertedValue.Clockwise_Positive;
     public static final NeutralModeValue kSpindexerIdleMode = NeutralModeValue.Coast;

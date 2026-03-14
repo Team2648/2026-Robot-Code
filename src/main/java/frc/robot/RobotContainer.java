@@ -43,7 +43,7 @@ import frc.robot.utilities.Elastic;
 import frc.robot.utilities.Utilities;
 
 public class RobotContainer {
-  //  private PhotonVision vision;
+    private PhotonVision vision;
     private Drivetrain drivetrain;
     private Hood hood;
     private Shooter shooter;
@@ -60,7 +60,7 @@ public class RobotContainer {
     private Timer shiftTimer;
 
     public RobotContainer() {
-        //vision = new PhotonVision();
+        vision = new PhotonVision();
         drivetrain = new Drivetrain(null);
         hood = new Hood();
         shooter = new Shooter();
@@ -70,7 +70,7 @@ public class RobotContainer {
         //climber = new Climber();
         configureNamedCommands();
 
-        /* 
+         
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
             Logger.recordOutput(
@@ -78,7 +78,7 @@ public class RobotContainer {
                 vp.visualPose()
             );
         });
-        */
+        
 
         driver = new CommandXboxController(OIConstants.kDriverControllerPort);
         secondary = new CommandXboxController(OIConstants.kOperatorControllerPort);

@@ -33,18 +33,21 @@ public class IntakeRoller extends SubsystemBase {
     public Command runIn() {
         return run(() -> {
             leftMotor.set(IntakeRollerConstants.kSpeed*0.8);
+            rightMotor.set(IntakeRollerConstants.kSpeed*0.8);
         });
     }
 
     public Command runOut() {
         return run(() -> {
             leftMotor.set(-IntakeRollerConstants.kSpeed);
+            rightMotor.set(-IntakeRollerConstants.kSpeed);
         });
     }
 
     public Command stop() {
         return run(() -> {
             leftMotor.set(0);
+            rightMotor.set(0);
         });
     }
     

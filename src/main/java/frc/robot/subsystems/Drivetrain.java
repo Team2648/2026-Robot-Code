@@ -332,6 +332,10 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void consumeVisualPose(VisualPose pose) {
+        if(Math.abs(pose.visualPose().minus(getPose()).getTranslation().getNorm()) > 1) {
+            return;
+        }
+        
         estimator.addVisionMeasurement(
             pose.visualPose(), 
             pose.timestamp()
@@ -376,7 +380,8 @@ public class Drivetrain extends SubsystemBase {
         SwerveModuleState[] swerveModuleStates = DrivetrainConstants.kDriveKinematics.toSwerveModuleStates(
             fieldRelative ?
                 ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotationDelivered, 
-                    estimator.getEstimatedPosition().getRotation()) :
+                    //estimator.getEstimatedPosition().getRotation()) :
+                    Rotation2d.fromDegrees(getGyroValue())) :
                 new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotationDelivered)   
         );
 
