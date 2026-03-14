@@ -12,6 +12,8 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.EventMarker;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -71,7 +74,7 @@ public class RobotContainer {
         configureNamedCommands();
 
          
-        vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
+        //vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
             Logger.recordOutput(
                 "Vision/" + vp.cameraName() + "/Pose", 
@@ -333,7 +336,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand(
             "intake down", 
-            intakePivot.manualSpeed(()->-0.75)
+            intakePivot.manualSpeed(()->0.75)
                 .withTimeout(1)
         );
 
@@ -345,7 +348,33 @@ public class RobotContainer {
             spindexer.spinToShooter()
                 .alongWith(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed))
                 .alongWith(hood.trackToAngle(() -> Units.degreesToRadians(10)))
-                .withTimeout(3));
+                .withTimeout(3).andThen(spindexer.instantaneousStop()));
+        
+       // NamedCommands.registerCommand("Intake Start", intakeRoller.runIn());
+
+        new EventTrigger("Intake Start")
+            .onTrue(intakeRoller.runIn());
+
+        NamedCommands.registerCommand("stop spindexer", spindexer.instantaneousStop());
+
+        NamedCommands.registerCommand("jimmy",
+            Commands.repeatingSequence(
+                    intakePivot.manualSpeed(() -> -0.75).withTimeout(0.2)
+                    .andThen(intakePivot.manualSpeed(() -> 0.75).withTimeout(0.2))
+                )
+            );
+
+        NamedCommands.registerCommand("shoot N jimmy", 
+            Commands.parallel(
+                Commands.repeatingSequence(
+                    intakePivot.manualSpeed(() -> -0.75).withTimeout(0.5),
+                    intakePivot.manualSpeed(() -> 0.75).withTimeout(0.5)
+                ),
+                spindexer.spinToShooter()
+                    .alongWith(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed),
+                               hood.trackToAngle(() -> Units.degreesToRadians(10)))
+                
+            ).withTimeout(3).andThen(spindexer.instantaneousStop()));
     }
 
     public Command getAutonomousCommand() {
