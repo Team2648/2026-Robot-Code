@@ -18,7 +18,7 @@ public class PhotonConstants {
         Units.inchesToMeters(28.5),
         new Rotation3d(
             Units.degreesToRadians(0), 
-            Units.degreesToRadians(24.0), 
+            Units.degreesToRadians(-24.0), 
             Units.degreesToRadians(30.0)
         )
     );
@@ -28,7 +28,7 @@ public class PhotonConstants {
         Units.inchesToMeters(28.5),
         new Rotation3d(
             Units.degreesToRadians(0.0), 
-            Units.degreesToRadians(24.0), 
+            Units.degreesToRadians(-24.0), 
             Units.degreesToRadians(-10.0)
         )
     );

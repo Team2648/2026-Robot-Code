@@ -82,12 +82,12 @@ public class Drivetrain extends SubsystemBase {
         gyro = new AHRS(NavXComType.kMXP_SPI);
 
         yawRotationController = new PIDController(
-            AutoConstants.kPThetaController, 
+            DrivetrainConstants.kHeadingP, 
             0, 
             0
         );
         yawRotationController.enableContinuousInput(-Math.PI, Math.PI);
-        yawRotationController.setTolerance(AutoConstants.kYawPIDTolerance);
+        yawRotationController.setTolerance(DrivetrainConstants.kYawPIDTolerance);
 
         // TODO 2025 used non-standard deviations for encoder/gyro inputs and vision, will need to be tuned for 2026 in the future
         estimator = new SwerveDrivePoseEstimator(
@@ -262,10 +262,17 @@ public class Drivetrain extends SubsystemBase {
                         targetRotation = targetRotation.rotateBy(Rotation2d.k180deg);
                     }
 
-                    return yawRotationController.calculate(
+                    Logger.recordOutput("/HubAutoAlign/CurrentHeader", getHeading().getRadians());
+                    Logger.recordOutput("/HubAutoAlign/Setpoint", targetRotation.getRadians());
+
+                    double outputPower = -yawRotationController.calculate(
                         getHeading().getRadians(),
                         targetRotation.getRadians()
                     );
+
+                    Logger.recordOutput("/HubAutoAlign/OutputPower", outputPower);
+
+                    return outputPower;
                 }, 
                 () -> true
             )

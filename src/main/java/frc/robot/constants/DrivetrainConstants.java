@@ -38,9 +38,10 @@ public class DrivetrainConstants {
     public static final boolean kGyroReversed = true;
 
     // TODO Hold over from 2025, adjust?
-    public static final double kHeadingP = .1;
+    public static final double kHeadingP = .65;
     public static final double kXTranslationP = .5;
     public static final double kYTranslationP = .5;
+    public static final double kYawPIDTolerance = Units.degreesToRadians(1);
 
     // TODO How much do we trust gyro and encoders vs vision estimates.
     // NOTE: Bigger values indicate LESS trust. Generally all three values for a given matrix should be the same

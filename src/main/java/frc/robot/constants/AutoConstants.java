@@ -24,8 +24,6 @@ public class AutoConstants {
     public static final double kPXYController = 3.5;
     public static final double kPThetaController = 5;
 
-    public static final double kYawPIDTolerance = Units.degreesToRadians(2);
-
     public static final double kAlignPXYController = 2;
     public static final double kAlignPThetaController = 5;
 

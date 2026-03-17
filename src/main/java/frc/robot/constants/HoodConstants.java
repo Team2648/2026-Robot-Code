@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
@@ -12,7 +13,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.constants.ShooterConstants.ShooterSpeeds;
 
 public class HoodConstants {
     // TODO Real Values
@@ -43,9 +46,9 @@ public class HoodConstants {
 
     public static final IdleMode kIdleMode = IdleMode.kBrake;
 
-    // TODO This needs to be filled in from some source
-    public static final InterpolatingDoubleTreeMap kDistanceToAngle = new InterpolatingDoubleTreeMap();
-
+    public static final Map<ShooterSpeeds, InterpolatingDoubleTreeMap> kHoodInterpolators = Map.of(
+        ShooterSpeeds.kHubSpeed, new InterpolatingDoubleTreeMap()
+    );
     // YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW THIS LINE UNLESS YOU'RE ADDING A CONFIGURATION ITEM
 
     public static final SparkMaxConfig kConfig = new SparkMaxConfig();
@@ -66,27 +69,24 @@ public class HoodConstants {
             .feedForward
                 .sva(kS, kV, kA);
 
+        kHoodInterpolators.get(ShooterSpeeds.kHubSpeed).put(
+            Double.valueOf(Units.inchesToMeters(22.2 + 40)), 
+            Double.valueOf(Units.degreesToRadians(10)));
 
-        File interpolatorFile = Path.of(
-            Filesystem.getDeployDirectory().getAbsolutePath().toString(), 
-            "interpolatorData.csv"
-        ).toFile();
+        kHoodInterpolators.get(ShooterSpeeds.kHubSpeed).put(
+            Double.valueOf(Units.inchesToMeters(22.2 + 60)), 
+            Double.valueOf(Units.degreesToRadians(13)));
 
-        if(interpolatorFile.exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(interpolatorFile))) {
-                reader.lines().forEach((s) -> {
-                    if(s.trim() != "") { //Empty or whitespace line protection
-                        String[] lineSplit = s.split(",");
+        kHoodInterpolators.get(ShooterSpeeds.kHubSpeed).put(
+            Double.valueOf(Units.inchesToMeters(22.2 + 80)),
+            Double.valueOf(Units.degreesToRadians(17)));
 
-                        kDistanceToAngle.put(
-                            Double.valueOf(lineSplit[0].replace("\"", "")), 
-                            Double.valueOf(lineSplit[1].replace("\"", ""))
-                        );
-                    }
-                });
-            } catch (IOException e) {
-                // This condition is never reached because of the if exists line above
-            }
-        }
+        kHoodInterpolators.get(ShooterSpeeds.kHubSpeed).put(
+            Double.valueOf(Units.inchesToMeters(22.2 + 100)), 
+            Double.valueOf(Units.degreesToRadians(21)));
+
+        kHoodInterpolators.get(ShooterSpeeds.kHubSpeed).put(
+            Double.valueOf(Units.inchesToMeters(22.2 + 120)), 
+            Double.valueOf(Units.degreesToRadians(24)));
     }
 }

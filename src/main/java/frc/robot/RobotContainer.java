@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 import org.littletonrobotics.junction.Logger;
@@ -13,8 +14,12 @@ import org.littletonrobotics.junction.Logger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -59,6 +64,8 @@ public class RobotContainer {
 
     private Timer shiftTimer;
 
+    private boolean resetOdometryToVisualPose;
+
     public RobotContainer() {
         vision = new PhotonVision();
         drivetrain = new Drivetrain(null);
@@ -70,6 +77,7 @@ public class RobotContainer {
         //climber = new Climber();
         configureNamedCommands();
 
+        resetOdometryToVisualPose = false;
          
         vision.addPoseEstimateConsumer(drivetrain::consumeVisualPose);
         vision.addPoseEstimateConsumer((vp) -> {
@@ -77,6 +85,12 @@ public class RobotContainer {
                 "Vision/" + vp.cameraName() + "/Pose", 
                 vp.visualPose()
             );
+        });
+        vision.addPoseEstimateConsumer((vp) -> {
+            if(resetOdometryToVisualPose) {
+                drivetrain.resetOdometry(vp.visualPose());
+                resetOdometryToVisualPose = false;
+            }
         });
         
 
@@ -93,7 +107,6 @@ public class RobotContainer {
         if(AutoConstants.kAutoConfigOk) {
             autoChooser = AutoBuilder.buildAutoChooser();
             SmartDashboard.putData("Auto Chooser", autoChooser);
-            
         }
     }
 
@@ -255,6 +268,7 @@ public class RobotContainer {
 
         intakePivot.setDefaultCommand(intakePivot.manualSpeed(() -> secondary.getLeftY()));
 
+        driver.a().onTrue(new InstantCommand(() -> resetOdometryToVisualPose = true));
         driver.y().whileTrue(drivetrain.zeroHeading());
 
         driver.leftTrigger().whileTrue(
@@ -285,36 +299,38 @@ public class RobotContainer {
         secondary.a().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kHubSpeed));
         secondary.x().toggleOnTrue(shooter.maintainSpeed(ShooterSpeeds.kFeedSpeed));
 
-        secondary.y().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(40)));
+        //hood.setDefaultCommand(hood.trackToAngle(() -> Units.degreesToRadians(MathUtil.clamp(hoodAngle, 0, 40))));
+        //secondary.y().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(40)));
         //40 good for feeding
-        secondary.b().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(30)));
+        //secondary.b().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(30)));
         //30 degrees good for shooter far near outpost
         secondary.rightBumper().onTrue(hood.trackToAngle(() -> Units.degreesToRadians(10)));
         //10 degrees good for shooting ~33in away from hub
 
-        /* 
+        
         hood.setDefaultCommand(hood.trackToAngle(() -> {
             Pose2d drivetrainPose = drivetrain.getPose();
             Pose2d hubPose = Utilities.getHubPose();
 
             double distance = drivetrainPose.getTranslation()
-                .plus(CompetitionConstants.kRobotToShooter.getTranslation().toTranslation2d())
                 .getDistance(hubPose.getTranslation());
+
+            Logger.recordOutput("Hood/DistanceToHub", distance);
+
+            Optional<ShooterSpeeds> currentSpeeds = shooter.getTargetSpeeds();
                 
-            if(HoodConstants.kUseInterpolatorForAngle) {
-                return HoodConstants.kDistanceToAngle.get(distance);
+            if(currentSpeeds.isPresent()) {
+                InterpolatingDoubleTreeMap map = HoodConstants.kHoodInterpolators.get(currentSpeeds.get());
+
+                if(map != null) {
+                    return MathUtil.clamp(map.get(distance), 0, 40);
+                } else {
+                    return 0;
+                }
             } else {
-                // TODO The average actual speeds isn't <i>really</i> the exit velocity of the ball
-                // on a hooded shooter, based on documentation, it's more like 30-50% depending on
-                // hood material, surface friction, etc.
-                return Utilities.shotAngle(
-                    shooter.getAverageActualSpeeds(), 
-                    distance, 
-                    CompetitionConstants.kHubGoalHeightMeters - ShooterConstants.kShooterHeightMeters, 
-                    false
-                );
+                return 0;
             }
-        }));*/
+        }));
     }
 
     private void configureNamedCommands() {
