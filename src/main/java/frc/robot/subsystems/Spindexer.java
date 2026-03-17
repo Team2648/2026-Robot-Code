@@ -59,5 +59,12 @@ public class Spindexer extends SubsystemBase {
             feederMotor.set(0);
         });
     }
+
+    public Command instantaneousStop() {
+        return runOnce(() -> {
+            spindexerMotor.setControl(spindexerMotorOutput.withOutput(0));
+            feederMotor.set(0);
+        });
+    }
     
 }

@@ -80,6 +80,13 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
+    // public Command jimmy(){
+    //     return run(() -> {
+    //         leftMotor.set(0.5 * IntakePivotConstants.kMaxManualSpeedMultiplier);
+    //         rightMotor.set(0.5 * IntakePivotConstants.kMaxManualSpeedMultiplier);
+    //     })
+    // }
+
     public Command stop() {
         return manualSpeed(() -> 0);
     }

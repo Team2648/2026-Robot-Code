@@ -27,6 +27,36 @@
           "data": {
             "name": "shoot close"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left to Outpost"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stop spindexer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "trough to shot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinup"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot N jimmy"
+          }
         }
       ]
     }
